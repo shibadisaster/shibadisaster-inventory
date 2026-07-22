@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://dtvsovkayce8u"]
+
+[ext_resource type="Texture2D" uid="uid://jwrdoeje12dq" path="res://addons/shibadisaster_inventory/placeholder.png" id="1_jd8j7"]
+[ext_resource type="Script" uid="uid://cvxsxqf0fs6gc" path="res://addons/shibadisaster_inventory/inventory_item_ghost/inventory_item_ghost.gd" id="2_pikql"]
+
+[node name="InventoryItemGhost" type="TextureRect" unique_id=10282427]
+offset_transform_enabled = true
+texture = ExtResource("1_jd8j7")
+expand_mode = 1
+stretch_mode = 3
+script = ExtResource("2_pikql")

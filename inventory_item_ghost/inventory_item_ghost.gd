@@ -1,5 +1,5 @@
 extends TextureRect
-class_name ItemGhost
+class_name InventoryItemGhost
 
 
 var stored_item: Resource

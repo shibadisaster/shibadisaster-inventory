@@ -1,7 +1,7 @@
 extends Node
 
 
-var ItemGhost = preload("./item_ghost/item_ghost.tscn")
+var InventoryItemGhost = preload("./inventory_item_ghost/inventory_item_ghost.tscn")
 
 enum ItemPlaceError {
 	NO_ERROR,
@@ -21,7 +21,7 @@ const ITEM_PLACE_ERROR_READABLE: Dictionary[ItemPlaceError, String] = {
 var hovered_slot: InventorySlot = null
 var currently_hovered_slots: Array[InventorySlot] = []
 
-var item_ghost: ItemGhost = null
+var item_ghost: InventoryItemGhost = null
 
 
 func _ready() -> void:
@@ -57,7 +57,7 @@ func _input(event: InputEvent) -> void:
 func attempt_item_pickup() -> void:
 	if hovered_slot.stored_item_parent and !self.item_ghost:
 		var slot_with_stored_item = hovered_slot.stored_item_parent
-		var ghost: ItemGhost = ItemGhost.instantiate()
+		var ghost: InventoryItemGhost = InventoryItemGhost.instantiate()
 		ghost.stored_item = slot_with_stored_item.stored_item
 		ghost.update_visuals()
 		ghost.initial_positioning(slot_with_stored_item)
