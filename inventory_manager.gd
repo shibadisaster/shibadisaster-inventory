@@ -45,7 +45,6 @@ func update_hovered_slot(delta: float) -> void:
 func update_projection_ghost() -> void:
 	if item_ghost and hovered_slot:
 		var error: ItemPlaceError = check_item_place()
-		print(ITEM_PLACE_ERROR_READABLE[error])
 		if error == ItemPlaceError.NO_ERROR or error == ItemPlaceError.SLOT_ALREADY_OCCUPIED: # TODO: make cleaner by moving this outward (ItemPlaceError is robust enough to handle it)
 			if !projection_ghost: create_projection_ghost()
 			projection_ghost.target_slot = hovered_slot
@@ -148,9 +147,18 @@ func check_item_place() -> ItemPlaceError:
 	if !item_ghost: return ItemPlaceError.GHOST_DOESNT_EXIST
 	
 	var target_coord: Vector2i = hovered_slot.slot_coord
+	var is_outside_bounds: bool = false
+	var is_already_occupied: bool = false
 	for cell in InventoryItemHandler.extract_item_shape(item_ghost.stored_item):
 		var checked_coord: Vector2i = target_coord + cell
-		if checked_coord not in hovered_slot.parent_grid.slots.keys(): return ItemPlaceError.SLOT_OUTSIDE_BOUNDS
-		if hovered_slot.parent_grid.slots[checked_coord].stored_item_parent: return ItemPlaceError.SLOT_ALREADY_OCCUPIED
+		if checked_coord not in hovered_slot.parent_grid.slots.keys(): 
+			is_outside_bounds = true
+			break # We break here because SLOT_OUTSIDE_BOUNDS is higher priority than SLOT_ALREADY_OCCUPIED
+		if hovered_slot.parent_grid.slots[checked_coord].stored_item_parent: 
+			is_already_occupied = true
+			
+			
+	if is_outside_bounds: return ItemPlaceError.SLOT_OUTSIDE_BOUNDS
+	if is_already_occupied: return ItemPlaceError.SLOT_ALREADY_OCCUPIED
 
 	return ItemPlaceError.NO_ERROR
