@@ -1,0 +1,76 @@
+extends TextureRect
+class_name InventoryProjectionGhost
+
+
+var target_slot: InventorySlot
+var stored_item: Resource
+var valid_placement: bool = true
+
+var stored_item_rotation: int
+
+var fading_out: bool = false
+var fade_out_timer: float = 0.0
+
+const FADE_OUT_DURATION: float = 0.25
+
+
+func _process(delta: float) -> void:
+	update_position(delta)
+	update_validity()
+	
+	if fading_out: fade_out(delta)
+	
+	var fade_progress: float = fade_out_timer / FADE_OUT_DURATION
+	self.material.set_shader_parameter("fading", fade_progress)
+
+
+func update_position(delta: float) -> void:
+	if true:
+		self.set_position(
+			lerp(
+				self.position,
+				get_target_position(),
+				20.0 * delta
+			)
+		)
+		
+		$".".offset_transform_rotation = lerp_angle(
+			self.offset_transform_rotation,
+			deg_to_rad(stored_item_rotation),
+			20.0 * delta
+		)
+	
+	if false:
+		self.set_position(get_target_position())
+		$".".offset_transform_rotation = deg_to_rad(stored_item_rotation)
+	
+	
+func initial_position() -> void:
+	self.set_position(get_target_position())
+	stored_item_rotation = InventoryItemHandler.extract_item_rotation(stored_item)
+	$".".offset_transform_rotation = deg_to_rad(stored_item_rotation)
+
+
+func get_target_position() -> Vector2:
+	var cell_center: Vector2 = Vector2(target_slot.parent_grid.inventory_slot_size / 2.0, target_slot.parent_grid.inventory_slot_size / 2.0)
+	return target_slot.position + cell_center
+
+
+func update_texture() -> void:
+	$".".texture = InventoryItemHandler.extract_item_texture(stored_item)
+
+
+func update_validity() -> void:
+	self.material.set_shader_parameter("valid", valid_placement)
+	if valid_placement: modulate = Color.GREEN
+	else: modulate = Color.RED
+	
+	
+func fade_out(delta: float) -> void:
+	fade_out_timer += delta	
+	if fade_out_timer > FADE_OUT_DURATION: self.queue_free()
+	
+
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("InventoryRotate"):
+		stored_item_rotation = (stored_item_rotation + 90) % 360

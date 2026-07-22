@@ -1,0 +1,43 @@
+[gd_scene format=3 uid="uid://cfa4fmr1wgu4t"]
+
+[ext_resource type="Texture2D" uid="uid://jwrdoeje12dq" path="res://addons/shibadisaster_inventory/placeholder.png" id="1_jedk1"]
+[ext_resource type="Shader" uid="uid://klbml6jxf6jo" path="res://addons/shibadisaster_inventory/inventory_projection_ghost/inventory_projection_ghost.gdshader" id="1_ut5ep"]
+[ext_resource type="Script" uid="uid://bw0vvmttgm3wp" path="res://addons/shibadisaster_inventory/inventory_projection_ghost/inventory_projection_ghost.gd" id="2_2eaqj"]
+
+[sub_resource type="Gradient" id="Gradient_ut5ep"]
+colors = PackedColorArray(1, 0.25, 0.25, 1, 1, 0.75, 0.5, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_126j8"]
+gradient = SubResource("Gradient_ut5ep")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_126j8"]
+noise_type = 2
+fractal_type = 2
+cellular_return_type = 0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_ut5ep"]
+noise = SubResource("FastNoiseLite_126j8")
+seamless = true
+
+[sub_resource type="Gradient" id="Gradient_o3etc"]
+colors = PackedColorArray(0.625, 1, 0.25, 1, 0.5, 1, 0.75, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_8bsvr"]
+gradient = SubResource("Gradient_o3etc")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2eaqj"]
+resource_local_to_scene = true
+shader = ExtResource("1_ut5ep")
+shader_parameter/noise_tex = SubResource("NoiseTexture2D_ut5ep")
+shader_parameter/valid_gradient = SubResource("GradientTexture1D_8bsvr")
+shader_parameter/invalid_gradient = SubResource("GradientTexture1D_126j8")
+shader_parameter/valid = false
+shader_parameter/fading = 0.0
+
+[node name="InventoryProjectionGhost" type="TextureRect" unique_id=493856554]
+material = SubResource("ShaderMaterial_2eaqj")
+offset_transform_enabled = true
+texture = ExtResource("1_jedk1")
+expand_mode = 1
+stretch_mode = 3
+script = ExtResource("2_2eaqj")

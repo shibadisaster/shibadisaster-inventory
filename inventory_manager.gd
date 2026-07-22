@@ -2,6 +2,7 @@ extends Node
 
 
 var InventoryItemGhost = preload("./inventory_item_ghost/inventory_item_ghost.tscn")
+var InventoryProjectionGhost = preload("./inventory_projection_ghost/inventory_projection_ghost.tscn")
 
 enum ItemPlaceError {
 	NO_ERROR,
@@ -22,6 +23,7 @@ var hovered_slot: InventorySlot = null
 var currently_hovered_slots: Array[InventorySlot] = []
 
 var item_ghost: InventoryItemGhost = null
+var projection_ghost: InventoryProjectionGhost = null
 
 
 func _ready() -> void:
@@ -30,6 +32,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	update_hovered_slot(delta)
+	update_projection_ghost()
 
 
 func update_hovered_slot(delta: float) -> void:
@@ -37,6 +40,45 @@ func update_hovered_slot(delta: float) -> void:
 	
 	if len(currently_hovered_slots) > 0: hovered_slot = currently_hovered_slots[0]
 	else: hovered_slot = null	
+	
+	
+func update_projection_ghost() -> void:
+	if item_ghost and hovered_slot:
+		var error: ItemPlaceError = check_item_place()
+		print(ITEM_PLACE_ERROR_READABLE[error])
+		if error == ItemPlaceError.NO_ERROR or error == ItemPlaceError.SLOT_ALREADY_OCCUPIED: # TODO: make cleaner by moving this outward (ItemPlaceError is robust enough to handle it)
+			if !projection_ghost: create_projection_ghost()
+			projection_ghost.target_slot = hovered_slot
+			if error == ItemPlaceError.NO_ERROR:
+				projection_ghost.valid_placement = true
+			if error == ItemPlaceError.SLOT_ALREADY_OCCUPIED:
+				projection_ghost.valid_placement = false
+		else:
+			remove_projection_ghost()
+	else:
+		remove_projection_ghost()
+		
+		
+func create_projection_ghost() -> void:
+	#if !hovered_slot: return
+	#if !item_ghost: return
+	if projection_ghost: return
+	
+	var proj_ghost: InventoryProjectionGhost = InventoryProjectionGhost.instantiate()
+	proj_ghost.stored_item = item_ghost.stored_item
+	proj_ghost.target_slot = hovered_slot
+	proj_ghost.initial_position()
+	proj_ghost.update_texture()
+	
+	hovered_slot.parent_grid.add_child(proj_ghost)
+	projection_ghost = proj_ghost
+	
+	
+func remove_projection_ghost() -> void:
+	if !projection_ghost: return
+	
+	projection_ghost.fading_out = true
+	projection_ghost = null
 		
 
 func slot_hovered(slot: InventorySlot):

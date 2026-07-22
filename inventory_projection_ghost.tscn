@@ -1,8 +1,0 @@
-[gd_scene format=3 uid="uid://cfa4fmr1wgu4t"]
-
-[ext_resource type="Texture2D" uid="uid://jwrdoeje12dq" path="res://addons/shibadisaster_inventory/placeholder.png" id="1_qnus6"]
-
-[node name="InventoryProjectionGhost" type="TextureRect" unique_id=493856554]
-texture = ExtResource("1_qnus6")
-expand_mode = 1
-stretch_mode = 3
