@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://dvogkjkygjsgx"]
+
+[ext_resource type="Script" uid="uid://b7o06mqkl25e1" path="res://addons/shibadisaster_inventory/inventory_manager.gd" id="1_3j0ys"]
+
+[node name="InventoryManager" type="Control" unique_id=1356103818]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_3j0ys")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=136823047]
+layer = 100
+
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

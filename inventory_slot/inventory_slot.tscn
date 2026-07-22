@@ -1,0 +1,48 @@
+[gd_scene format=3 uid="uid://2ksl00n5nynp"]
+
+[ext_resource type="Script" uid="uid://1bqux34elk3h" path="res://addons/shibadisaster_inventory/inventory_slot/inventory_slot.gd" id="1_e1ec7"]
+[ext_resource type="Texture2D" uid="uid://ccieys5w2cqh1" path="res://addons/shibadisaster_inventory/sample_ninepatchrect.png" id="2_o7w2a"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m3p1u"]
+bg_color = Color(1, 1, 1, 0.24705882)
+
+[node name="InventorySlot" type="PanelContainer" unique_id=1536470693]
+custom_minimum_size = Vector2(64, 64)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -32.0
+offset_top = -32.0
+offset_right = 32.0
+offset_bottom = 32.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_e1ec7")
+
+[node name="HoveredUnderlay" type="Panel" parent="." unique_id=51214731]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_m3p1u")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="." unique_id=887934297]
+layout_mode = 2
+texture = ExtResource("2_o7w2a")
+region_rect = Rect2(0, 0, 64, 64)
+patch_margin_left = 12
+patch_margin_top = 12
+patch_margin_right = 12
+patch_margin_bottom = 12
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1712844574]
+z_index = 1
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="CenterContainer" unique_id=1910393961]
+layout_mode = 2
+offset_transform_enabled = true
+expand_mode = 1
+stretch_mode = 3
+
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]
