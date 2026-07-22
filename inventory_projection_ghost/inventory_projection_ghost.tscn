@@ -31,8 +31,8 @@ shader = ExtResource("1_ut5ep")
 shader_parameter/noise_tex = SubResource("NoiseTexture2D_ut5ep")
 shader_parameter/valid_gradient = SubResource("GradientTexture1D_8bsvr")
 shader_parameter/invalid_gradient = SubResource("GradientTexture1D_126j8")
-shader_parameter/valid = false
-shader_parameter/fading = 0.0
+shader_parameter/valid = true
+shader_parameter/fading = 0.999999977648
 
 [node name="InventoryProjectionGhost" type="TextureRect" unique_id=493856554]
 material = SubResource("ShaderMaterial_2eaqj")

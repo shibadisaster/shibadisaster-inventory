@@ -52,10 +52,8 @@ func update_projection_ghost() -> void:
 				projection_ghost.valid_placement = true
 			if error == ItemPlaceError.SLOT_ALREADY_OCCUPIED:
 				projection_ghost.valid_placement = false
-		else:
-			remove_projection_ghost()
-	else:
-		remove_projection_ghost()
+		else: remove_projection_ghost()
+	else: remove_projection_ghost()
 		
 		
 func create_projection_ghost() -> void:

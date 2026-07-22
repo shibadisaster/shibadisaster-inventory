@@ -9,9 +9,9 @@ var valid_placement: bool = true
 var stored_item_rotation: int
 
 var fading_out: bool = false
-var fade_out_timer: float = 0.0
+var fade_timer: float = 0.0
 
-const FADE_OUT_DURATION: float = 0.25
+const FADE_DURATION: float = 0.25
 
 
 func _process(delta: float) -> void:
@@ -19,8 +19,9 @@ func _process(delta: float) -> void:
 	update_validity()
 	
 	if fading_out: fade_out(delta)
+	else: fade_in(delta)
 	
-	var fade_progress: float = fade_out_timer / FADE_OUT_DURATION
+	var fade_progress: float = 1.0 - (fade_timer / FADE_DURATION)
 	self.material.set_shader_parameter("fading", fade_progress)
 
 
@@ -67,8 +68,12 @@ func update_validity() -> void:
 	
 	
 func fade_out(delta: float) -> void:
-	fade_out_timer += delta	
-	if fade_out_timer > FADE_OUT_DURATION: self.queue_free()
+	fade_timer -= delta	
+	if fade_timer < 0.0: self.queue_free()
+	
+
+func fade_in(delta: float) -> void:
+	fade_timer = move_toward(fade_timer, FADE_DURATION, delta)
 	
 
 func _input(event: InputEvent) -> void:
