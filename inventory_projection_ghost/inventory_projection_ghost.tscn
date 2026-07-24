@@ -19,6 +19,12 @@ cellular_return_type = 0
 noise = SubResource("FastNoiseLite_126j8")
 seamless = true
 
+[sub_resource type="Gradient" id="Gradient_126j8"]
+colors = PackedColorArray(1, 0.625, 0.25, 1, 0.75, 1, 0.5, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_o3etc"]
+gradient = SubResource("Gradient_126j8")
+
 [sub_resource type="Gradient" id="Gradient_o3etc"]
 colors = PackedColorArray(0.625, 1, 0.25, 1, 0.5, 1, 0.75, 1)
 
@@ -30,8 +36,9 @@ resource_local_to_scene = true
 shader = ExtResource("1_ut5ep")
 shader_parameter/noise_tex = SubResource("NoiseTexture2D_ut5ep")
 shader_parameter/valid_gradient = SubResource("GradientTexture1D_8bsvr")
+shader_parameter/semivalid_gradient = SubResource("GradientTexture1D_o3etc")
 shader_parameter/invalid_gradient = SubResource("GradientTexture1D_126j8")
-shader_parameter/valid = true
+shader_parameter/valid = 0
 shader_parameter/fading = 0.999999977648
 
 [node name="InventoryProjectionGhost" type="TextureRect" unique_id=493856554]

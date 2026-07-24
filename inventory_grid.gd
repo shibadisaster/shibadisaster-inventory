@@ -55,3 +55,17 @@ func generate_slot(slot_coord: Vector2i) -> void:
 	self.add_child(slot)
 	
 	slots[slot_coord] = slot
+
+
+func get_intersecting_item_slots(target_slot_coord: Vector2i, item: Resource) -> Array[InventorySlot]:
+	var intersecting_item_slots: Array[InventorySlot] = []
+	for cell in InventoryItemHandler.extract_item_shape(item):
+		var check_coord: Vector2i = target_slot_coord + cell
+		if check_coord not in slots.keys(): continue # If check_coord is out of bounds, skip over it
+		
+		if slots[check_coord].stored_item_parent:
+			var intersecting_item_slot: InventorySlot = slots[check_coord].stored_item_parent
+			if intersecting_item_slot not in intersecting_item_slots:
+				intersecting_item_slots.append(intersecting_item_slot)
+				
+	return intersecting_item_slots

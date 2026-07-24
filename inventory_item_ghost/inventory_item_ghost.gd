@@ -7,6 +7,7 @@ var stored_item: Resource
 
 func _process(delta: float) -> void:
 	update_positioning(delta)
+	#update_visuals()
 
 
 func update_visuals() -> void:

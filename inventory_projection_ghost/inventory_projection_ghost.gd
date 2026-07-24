@@ -5,6 +5,7 @@ class_name InventoryProjectionGhost
 var target_slot: InventorySlot
 var stored_item: Resource
 var valid_placement: bool = true
+var replaceable_placement: bool = false
 
 var stored_item_rotation: int
 
@@ -57,12 +58,19 @@ func get_target_position() -> Vector2:
 	return target_slot.position + cell_center
 
 
-func update_texture() -> void:
+func update_visuals() -> void:
 	$".".texture = InventoryItemHandler.extract_item_texture(stored_item)
+	stored_item_rotation = InventoryItemHandler.extract_item_rotation(stored_item)
+	$".".offset_transform_rotation = deg_to_rad(stored_item_rotation)
+	
 
 
 func update_validity() -> void:
-	self.material.set_shader_parameter("valid", valid_placement)
+	if valid_placement: self.material.set_shader_parameter("valid", 0)
+	else:
+		if replaceable_placement: self.material.set_shader_parameter("valid", 1)
+		else: self.material.set_shader_parameter("valid", 2)
+	
 	if valid_placement: modulate = Color.GREEN
 	else: modulate = Color.RED
 	
@@ -74,6 +82,10 @@ func fade_out(delta: float) -> void:
 
 func fade_in(delta: float) -> void:
 	fade_timer = move_toward(fade_timer, FADE_DURATION, delta)
+	
+	
+func reset_fade() -> void:
+	fade_timer = 0.0
 	
 
 func _input(event: InputEvent) -> void:
