@@ -26,7 +26,11 @@ func update_visuals() -> void:
 	if stored_item: 
 		$CenterContainer/TextureRect.texture = InventoryItemHandler.extract_item_texture(self.stored_item)
 		$CenterContainer/TextureRect.offset_transform_rotation = deg_to_rad(InventoryItemHandler.extract_item_rotation(self.stored_item))
-	else: $CenterContainer/TextureRect.texture = null
+		var stack_size: int = InventoryItemHandler.extract_item_stack_size(stored_item)
+		$MarginContainer/MarginContainer/StackSize.text = "" if stack_size == 1 else str(stack_size)
+	else: 
+		$CenterContainer/TextureRect.texture = null
+		$MarginContainer/MarginContainer/StackSize.text = ""
 	
 	if stored_item_parent: self.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	else: self.mouse_default_cursor_shape = Control.CURSOR_ARROW

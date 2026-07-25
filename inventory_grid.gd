@@ -19,6 +19,8 @@ var InventorySlot = preload("./inventory_slot/inventory_slot.tscn")
 ## A layer refers to a layer of the InventoryGrid that an Item can exist in. Items from different layers can occupy the same space, but Items from the same layer cannot.
 @export var layers: Array[String] = ["Default"]
 
+@export var stacking_allowed: bool = true
+
 ### Style box override for generated InventorySlots
 #@export var stylebox: StyleBox = null
 
@@ -57,6 +59,7 @@ func generate_slot(slot_coord: Vector2i) -> void:
 	slots[slot_coord] = slot
 
 
+## Returns SPECIFICALLY the 0, 0 or "core slot" of all intersecting items.
 func get_intersecting_item_slots(target_slot_coord: Vector2i, item: Resource) -> Array[InventorySlot]:
 	var intersecting_item_slots: Array[InventorySlot] = []
 	for cell in InventoryItemHandler.extract_item_shape(item):

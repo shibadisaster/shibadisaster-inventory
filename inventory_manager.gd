@@ -101,7 +101,7 @@ func attempt_item_pickup(slot: InventorySlot) -> void:
 	if slot.stored_item_parent:
 		var slot_with_stored_item = slot.stored_item_parent
 		var ghost: InventoryItemGhost = InventoryItemGhost.instantiate()
-		ghost.stored_item = slot_with_stored_item.stored_item
+		ghost.stored_item = slot_with_stored_item.stored_item.duplicate()
 		ghost.update_visuals()
 		ghost.initial_positioning(slot_with_stored_item)
 		
@@ -115,12 +115,19 @@ func attempt_item_drop() -> void:
 	var check_result: ItemPlaceError = check_item_place()
 	if check_result == ItemPlaceError.NO_ERROR:
 		attempt_item_place(self.hovered_slot, self.item_ghost.stored_item)
-		self.item_ghost.queue_free()
-		self.item_ghost = null
+		remove_item_ghost()
 	elif check_result == ItemPlaceError.SLOT_ALREADY_OCCUPIED:
-		attempt_item_replace()
+		if check_if_stackable():
+			attempt_item_add_to_stack()
+		else:
+			if check_if_replaceable(): attempt_item_replace()
 	else:
 		print(ITEM_PLACE_ERROR_READABLE[check_result])
+
+
+func remove_item_ghost() -> void:
+	self.item_ghost.queue_free()
+	self.item_ghost = null
 
 
 func check_if_replaceable() -> InventorySlot: # Returns the InventorySlot to be replaced IF it can be replaced
@@ -144,6 +151,18 @@ func attempt_item_replace() -> void:
 			projection_ghost.update_visuals()
 			projection_ghost.reset_fade()
 		old_item_ghost.queue_free()
+
+
+func check_if_stackable() -> InventorySlot: # Returns the InventorySlot that can be stacked to
+	if !hovered_slot or !item_ghost: return null
+	var intersecting_slots: Array[InventorySlot] = hovered_slot.parent_grid.get_intersecting_item_slots(
+		hovered_slot.slot_coord, 
+		item_ghost.stored_item
+	)
+	for intersecting_slot in intersecting_slots:
+		var stackable: bool = InventoryItemHandler.is_stackable(item_ghost.stored_item, intersecting_slot.stored_item)
+		if stackable: return intersecting_slot
+	return null
 
 
 func attempt_item_place(slot: InventorySlot, item: Resource) -> bool:
@@ -189,3 +208,18 @@ func check_item_place() -> ItemPlaceError:
 	if is_already_occupied: return ItemPlaceError.SLOT_ALREADY_OCCUPIED
 
 	return ItemPlaceError.NO_ERROR
+
+
+func attempt_item_add_to_stack() -> void: 
+	# We only call this when check_if_stackable successfully returns a slot
+	var stackable_to_slot: InventorySlot = check_if_stackable()
+	if stackable_to_slot:
+		if InventoryItemHandler.extract_item_stack_size(stackable_to_slot.stored_item) >= InventoryItemHandler.extract_item_max_stack_size(stackable_to_slot.stored_item):
+			return
+		stackable_to_slot.stored_item = InventoryItemHandler.add_to_stack(stackable_to_slot.stored_item, 1)
+		item_ghost.stored_item = InventoryItemHandler.add_to_stack(item_ghost.stored_item, -1)
+		
+		var new_ghost_stack_size: int = InventoryItemHandler.extract_item_stack_size(item_ghost.stored_item)
+		if new_ghost_stack_size is int and new_ghost_stack_size <= 0:
+			remove_item_ghost()
+			
