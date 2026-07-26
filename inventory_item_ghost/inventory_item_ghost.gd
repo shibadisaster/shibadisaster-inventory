@@ -12,7 +12,9 @@ func _process(delta: float) -> void:
 
 func update_visuals() -> void:
 	$".".texture = InventoryItemHandler.extract_item_texture(stored_item)
-
+	var stack_size: int = InventoryItemHandler.extract_item_stack_size(stored_item)
+	if stack_size == 1: $MarginContainer/Label.text = ""
+	else: $MarginContainer/Label.text = str(stack_size)
 
 func update_positioning(delta: float) -> void:
 	self.set_global_position(

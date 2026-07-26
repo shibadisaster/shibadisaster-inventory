@@ -26,6 +26,7 @@ layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_m3p1u")
 
 [node name="NinePatchRect" type="NinePatchRect" parent="." unique_id=887934297]
+visible = false
 layout_mode = 2
 texture = ExtResource("2_o7w2a")
 region_rect = Rect2(0, 0, 64, 64)
@@ -50,10 +51,6 @@ layout_mode = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="MarginContainer" unique_id=2145591157]
 layout_mode = 2
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
 
 [node name="StackSize" type="Label" parent="MarginContainer/MarginContainer" unique_id=1409626835]
 layout_mode = 2
