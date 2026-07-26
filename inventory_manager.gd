@@ -219,14 +219,31 @@ func check_item_place() -> ItemPlaceError:
 	return ItemPlaceError.NO_ERROR
 
 
-func attempt_item_add_to_stack() -> void: 
+func attempt_item_add_to_stack() -> bool: 
 	# We only call this when check_if_stackable successfully returns a slot
 	var stackable_to_slot: InventorySlot = check_if_stackable()
-	if stackable_to_slot:
-		if InventoryItemHandler.extract_item_stack_size(stackable_to_slot.stored_item) >= InventoryItemHandler.extract_item_max_stack_size(stackable_to_slot.stored_item):
-			return
+	
+	if !stackable_to_slot: return false
+	if InventoryItemHandler.extract_item_stack_size(stackable_to_slot.stored_item) >= InventoryItemHandler.extract_item_max_stack_size(stackable_to_slot.stored_item): return false
+	
+	
+	if false: # If player right-clicks to drop just 1 item into the stack
 		stackable_to_slot.stored_item = InventoryItemHandler.add_to_stack(stackable_to_slot.stored_item, 1)
 		deduct_from_item_ghost(1)
+	else:
+		var held_stack_size: int = InventoryItemHandler.extract_item_stack_size(item_ghost.stored_item)
+		var remaining_until_target_reaches_max: int = (
+			InventoryItemHandler.extract_item_max_stack_size(stackable_to_slot.stored_item)
+			- InventoryItemHandler.extract_item_stack_size(stackable_to_slot.stored_item)
+		)
+		
+		# Get lesser between amount in item_ghost and amount until target reaches max_stack_size
+		var amount_to_add_to_stack: int = min(held_stack_size, remaining_until_target_reaches_max)
+		
+		stackable_to_slot.stored_item = InventoryItemHandler.add_to_stack(stackable_to_slot.stored_item, amount_to_add_to_stack)
+		deduct_from_item_ghost(amount_to_add_to_stack)
+		
+	return true
 		
 			
 func deduct_from_item_ghost(amount: int) -> void:
