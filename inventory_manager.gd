@@ -33,7 +33,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	update_hovered_slot(delta)
 	update_projection_ghost()
-
+	update_item_ghost()
 
 ## Sets the hovered_slot to whichever InventorySlot is most appropriate.
 func update_hovered_slot(delta: float) -> void:
@@ -90,6 +90,14 @@ func slot_hovered(slot: InventorySlot):
 ## Called by InventorySlots when unhovered. (maybe should be private?)
 func slot_unhovered(slot: InventorySlot):
 	currently_hovered_slots.erase(slot)
+	
+	
+func update_item_ghost():
+	if item_ghost:
+		if item_ghost.depleted:
+			item_ghost.target_for_depleted_move = hovered_slot
+			item_ghost.start_depletion_animation()
+			self.item_ghost = null
 
 
 func _input(event: InputEvent) -> void:
@@ -118,13 +126,9 @@ func drop_item(alternate_action: bool) -> void:
 	var add_result: Resource = hovered_slot.parent_grid.add_item(hovered_slot.slot_coord, item_ghost.stored_item)
 	if add_result is Resource:
 		item_ghost.stored_item = add_result
-		if item_ghost.stored_item.inventory_stack_size <= 0: remove_item_ghost()
-
-
-func remove_item_ghost() -> void:
-	self.item_ghost.queue_free()
-	self.item_ghost = null
-
+	else:
+		attempt_item_replace()
+		
 
 ## Returns the InventorySlot containing the item to be replaced IF it can be replaced. Replacement can occur IF there is only one item intersecting the new placement.
 func check_if_replaceable() -> InventorySlot: 
