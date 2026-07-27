@@ -72,3 +72,34 @@ func get_intersecting_item_slots(target_slot_coord: Vector2i, item: Resource) ->
 				intersecting_item_slots.append(intersecting_item_slot)
 				
 	return intersecting_item_slots
+
+
+# okay so there is no way around this i need to move all the helper funcs into here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# for sanity, 
+#	ALL things relating to modifying stuff in an inventorygrid should go here (stacking, moving, removing, adding, etc)
+# 	ALL things relating to exterior objs or those on a layer above inventorygrids (saving, loading, itemghost, user input, projectionghost) should go in inventorymanager
+
+
+## Attempts to add an item anywhere they can fit, returning an inventory_stack_size == 0 item Resource if all in the item's stack were able to be added, null, an inventory_stack_size == (n - x) item Resource if it was able to stack some (x) but not all (n), and null if it couldn't fit anywhere.
+func auto_add_item(item: Resource) -> Resource:
+	return null
+
+
+## Attempts to add an item to the specified slot_coord, returning an inventory_stack_size == 0 item Resource if all in the item's stack were able to be added, null, an inventory_stack_size == (n - x) item Resource if it was able to stack some (x) but not all (n), and null if it couldn't fit anywhere.
+func add_item(slot_coord: Vector2i, item: Resource, amount: int = 1) -> Resource:
+	return null
+	
+
+## Increments the item stack at slot_coord. Returns null if the stack cannot be incremented (either if at max or grid does not support stacking) and an item Resource with the remaining stack amount if it was able to stack. 
+func increment_item_stack(slot_coord: Vector2i, item: Resource, amount: int = 1) -> Resource:
+	return null
+
+
+## Places the item at the slot coord. Returns null if it can't be placed there and an item Resource with stack amount == 0 if it was able to be placed.
+func place_item(slot_coord: Vector2i, item: Resource, amount: int = 1) -> Resource:
+	return null
+	
+	
+## Removes the item from the slot coord and returns it.
+func remove_item(slot_coord: Vector2i) -> Resource:
+	return null
