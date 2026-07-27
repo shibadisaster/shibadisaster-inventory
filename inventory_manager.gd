@@ -95,67 +95,30 @@ func slot_unhovered(slot: InventorySlot):
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("InventoryClick") or event.is_action_pressed("InventoryClickSecondary"):
 		if hovered_slot:
-			if !item_ghost: attempt_item_pickup(hovered_slot, event.is_action_pressed("InventoryClickSecondary"))
-			else: attempt_item_drop(event.is_action_pressed("InventoryClickSecondary"))
+			if !item_ghost: pickup_item(hovered_slot, event.is_action_pressed("InventoryClickSecondary"))
+			else: drop_item(event.is_action_pressed("InventoryClickSecondary"))
 
 
 ## Creates an InventoryItemGhost (item_ghost) based on the item in slot then removes that item from slot. If alternate_action, only picks up half.
-func attempt_item_pickup(slot: InventorySlot, alternate_action: bool) -> void:
-	if slot.stored_item_parent:
-		var slot_with_stored_item = slot.stored_item_parent
-		
-		var amount_to_be_picked_up: int = InventoryItemHandler.extract_item_stack_size(slot_with_stored_item.stored_item)
-		if alternate_action: amount_to_be_picked_up = ceil(amount_to_be_picked_up / 2.0)
-		var amount_remaining_in_slot: int = InventoryItemHandler.extract_item_stack_size(slot_with_stored_item.stored_item) - amount_to_be_picked_up
-		
+func pickup_item(slot: InventorySlot, alternate_action: bool) -> void:
+	var remove_result: Resource = slot.parent_grid.remove_item(slot.slot_coord)
+	if remove_result is Resource:
 		var ghost: InventoryItemGhost = InventoryItemGhost.instantiate()
-		ghost.stored_item = slot_with_stored_item.stored_item.duplicate()
-		ghost.stored_item.inventory_stack_size = amount_to_be_picked_up
+		ghost.stored_item = remove_result.duplicate()
+		#ghost.stored_item.inventory_stack_size = amount_to_be_picked_up
 		ghost.update_visuals()
-		ghost.initial_positioning(slot_with_stored_item)
+		ghost.initial_positioning(slot)
 		
 		$CanvasLayer.add_child(ghost)
 		self.item_ghost = ghost
-		
-		# TODO: DJSUHDJUSDHUJSHDIAHISHDIASUJHDIAHSIDHAIUSHDIUASHDIUAHSIUJCDASIJUNCIJASBNCIJSANIJDHASJOVDM ASUVDIPASJ<IODAJSIODVJMAOSIDJMIOASJDIOAHJIU#EH*URUF#*(FUH*(FU*(#UF*(#UF*(UA#*(U*($UA**IW)E(W_))_D()_!@)_()_E
-		if amount_remaining_in_slot == 0: attempt_item_remove(slot_with_stored_item)
-		else: slot_with_stored_item.stored_item.inventory_stack_size = amount_remaining_in_slot	
-		
 
-## i dont know anymore
-func attempt_item_drop(alternate_action: bool) -> void:
-	var check_result: ItemPlaceError = check_item_place()
-	
-	if check_result == ItemPlaceError.NO_ERROR: 
-		# If no items in the placement...
-		if self.hovered_slot.parent_grid.stacking_allowed: 
-			# AND target grid supports stacking...
-			# Then just place the item in the new slot (we know it will fit with no conflicts)
-			if !alternate_action:
-				attempt_item_place(self.hovered_slot, self.item_ghost.stored_item)
-				remove_item_ghost()
-			else:
-				var new_item: Resource = item_ghost.stored_item.duplicate()
-				new_item.inventory_stack_size = 1
-				attempt_item_place(self.hovered_slot, new_item)
-				deduct_from_item_ghost(1)
-		else: 
-			# AND target grid disallows stacking...
-			var new_single_item: Resource = self.item_ghost.stored_item.duplicate()
-			if new_single_item.get("inventory_stack_size"): new_single_item.inventory_stack_size = 1
-			attempt_item_place(self.hovered_slot, new_single_item)
-			deduct_from_item_ghost(1)
-			
-	elif check_result == ItemPlaceError.SLOT_ALREADY_OCCUPIED: 
-		# If there is already an item in the area of the placement...
-		if self.hovered_slot.parent_grid.stacking_allowed and check_if_stackable(): 
-			# AND it can stack...
-			attempt_item_add_to_stack()
-		else:
-			if check_if_replaceable(): attempt_item_replace()
-			
-	else: # Else, throw an error.
-		print(ITEM_PLACE_ERROR_READABLE[check_result])
+
+## just refactored this from 31 lines to 4
+func drop_item(alternate_action: bool) -> void:
+	var add_result: Resource = hovered_slot.parent_grid.add_item(hovered_slot.slot_coord, item_ghost.stored_item)
+	if add_result is Resource:
+		item_ghost.stored_item = add_result
+		if item_ghost.stored_item.inventory_stack_size <= 0: remove_item_ghost()
 
 
 func remove_item_ghost() -> void:
@@ -179,8 +142,9 @@ func attempt_item_replace() -> void:
 	var slot_to_be_replaced: InventorySlot = check_if_replaceable()
 	if slot_to_be_replaced:
 		var old_item_ghost: InventoryItemGhost = self.item_ghost
-		attempt_item_pickup(slot_to_be_replaced, false) # Make a ghost for the replaced slot
-		attempt_item_place(self.hovered_slot, old_item_ghost.stored_item)
+		pickup_item(slot_to_be_replaced, false) # Make a ghost for the replaced slot
+		#attempt_item_place(self.hovered_slot, old_item_ghost.stored_item)
+		hovered_slot.parent_grid.add_item(hovered_slot.slot_coord, old_item_ghost.stored_item)
 		if projection_ghost: 
 			projection_ghost.stored_item = item_ghost.stored_item
 			projection_ghost.update_visuals()
@@ -188,44 +152,44 @@ func attempt_item_replace() -> void:
 		old_item_ghost.queue_free()
 
 
-## Returns the InventorySlot that can be stacked to IF one of the intersecting items can be stacked to.
-func check_if_stackable() -> InventorySlot: 
-	if !hovered_slot or !item_ghost: return null
-	var intersecting_slots: Array[InventorySlot] = hovered_slot.parent_grid.get_intersecting_item_slots(
-		hovered_slot.slot_coord, 
-		item_ghost.stored_item
-	)
-	for intersecting_slot in intersecting_slots:
-		var stackable: bool = InventoryItemHandler.is_stackable(item_ghost.stored_item, intersecting_slot.stored_item)
-		if stackable: return intersecting_slot
-	return null
-
-
-## Forcefully places the item in its slot without checking validity. We should ONLY call this IF the space for the item is all empty.
-func attempt_item_place(slot: InventorySlot, item: Resource) -> bool: 
-	slot.stored_item = item
-	slot.update_visuals()
-	for cell in InventoryItemHandler.extract_item_shape(item):
-		var slot_coord: Vector2i = slot.slot_coord
-		var taken_coord: Vector2i = slot_coord + cell
-		# Set each InventorySlot corresponding to a coord actually taken up by the item to reference (0, 0) slot as the parent.
-		slot.parent_grid.slots[taken_coord].stored_item_parent = slot
-		
-	return true
-	
-
-## Clears the item from an InventorySlot and removes stored_item_parent from all other slots occupied by it. REMINDER: only one of the InventorySlots (whichever corresponds to 0, 0 of the item) actually has a stored_item, but ALL InventorySlots occupied by the item have a stored_item_parent.
-func attempt_item_remove(slot: InventorySlot) -> bool:
-	if slot.stored_item:
-		for cell in InventoryItemHandler.extract_item_shape(slot.stored_item):
-			var taken_coord: Vector2i = slot.slot_coord + cell
-			slot.parent_grid.slots[taken_coord].stored_item_parent = null
-		slot.stored_item = null
-		slot.update_visuals()
-		return true
-	else: return false
-
-
+### Returns the InventorySlot that can be stacked to IF one of the intersecting items can be stacked to.
+#func check_if_stackable() -> InventorySlot: 
+	#if !hovered_slot or !item_ghost: return null
+	#var intersecting_slots: Array[InventorySlot] = hovered_slot.parent_grid.get_intersecting_item_slots(
+		#hovered_slot.slot_coord, 
+		#item_ghost.stored_item
+	#)
+	#for intersecting_slot in intersecting_slots:
+		#var stackable: bool = InventoryItemHandler.is_stackable(item_ghost.stored_item, intersecting_slot.stored_item)
+		#if stackable: return intersecting_slot
+	#return null
+#
+#
+### Forcefully places the item in its slot without checking validity. We should ONLY call this IF the space for the item is all empty.
+#func attempt_item_place(slot: InventorySlot, item: Resource) -> bool: 
+	#slot.stored_item = item
+	#slot.update_visuals()
+	#for cell in InventoryItemHandler.extract_item_shape(item):
+		#var slot_coord: Vector2i = slot.slot_coord
+		#var taken_coord: Vector2i = slot_coord + cell
+		## Set each InventorySlot corresponding to a coord actually taken up by the item to reference (0, 0) slot as the parent.
+		#slot.parent_grid.slots[taken_coord].stored_item_parent = slot
+		#
+	#return true
+	#
+#
+### Clears the item from an InventorySlot and removes stored_item_parent from all other slots occupied by it. REMINDER: only one of the InventorySlots (whichever corresponds to 0, 0 of the item) actually has a stored_item, but ALL InventorySlots occupied by the item have a stored_item_parent.
+#func attempt_item_remove(slot: InventorySlot) -> bool:
+	#if slot.stored_item:
+		#for cell in InventoryItemHandler.extract_item_shape(slot.stored_item):
+			#var taken_coord: Vector2i = slot.slot_coord + cell
+			#slot.parent_grid.slots[taken_coord].stored_item_parent = null
+		#slot.stored_item = null
+		#slot.update_visuals()
+		#return true
+	#else: return false
+#
+#
 ## Checks for the validity of the item placement. Priority goes as follows: [br][br]
 ## SLOT_NOT_HOVERED: There is no hovered_slot [br]
 ## GHOST_DOESNT_EXIST: There is no item_ghost [br]
@@ -254,38 +218,38 @@ func check_item_place() -> ItemPlaceError:
 	return ItemPlaceError.NO_ERROR
 
 
-## If the target item is able to be stacked to, transfers some amount of items from the item_ghost to the stack.
-func attempt_item_add_to_stack() -> bool: 
-	# We only call this when check_if_stackable successfully returns a slot
-	var stackable_to_slot: InventorySlot = check_if_stackable()
-	
-	if !stackable_to_slot: return false
-	if InventoryItemHandler.extract_item_stack_size(stackable_to_slot.stored_item) >= InventoryItemHandler.extract_item_max_stack_size(stackable_to_slot.stored_item): return false
-	
-	
-	if false: # If player right-clicks to drop just 1 item into the stack
-		stackable_to_slot.stored_item = InventoryItemHandler.add_to_stack(stackable_to_slot.stored_item, 1)
-		deduct_from_item_ghost(1)
-	else:
-		var held_stack_size: int = InventoryItemHandler.extract_item_stack_size(item_ghost.stored_item)
-		var remaining_until_target_reaches_max: int = (
-			InventoryItemHandler.extract_item_max_stack_size(stackable_to_slot.stored_item)
-			- InventoryItemHandler.extract_item_stack_size(stackable_to_slot.stored_item)
-		)
-		
-		# Get lesser between amount in item_ghost and amount until target reaches max_stack_size
-		var amount_to_add_to_stack: int = min(held_stack_size, remaining_until_target_reaches_max)
-		stackable_to_slot.stored_item = InventoryItemHandler.add_to_stack(stackable_to_slot.stored_item, amount_to_add_to_stack)
-		deduct_from_item_ghost(amount_to_add_to_stack)
-	return true
-		
-
-## Deducts some amount of items from the item_ghost and removes it if it reaches 0 stack_size.
-func deduct_from_item_ghost(amount: int) -> void:
-	item_ghost.stored_item = InventoryItemHandler.add_to_stack(item_ghost.stored_item, -amount)
-	item_ghost.update_visuals()
-		
-	var new_ghost_stack_size: int = InventoryItemHandler.extract_item_stack_size(item_ghost.stored_item)
-	if new_ghost_stack_size is int and new_ghost_stack_size <= 0:
-		remove_item_ghost()
+### If the target item is able to be stacked to, transfers some amount of items from the item_ghost to the stack.
+#func attempt_item_add_to_stack() -> bool: 
+	## We only call this when check_if_stackable successfully returns a slot
+	#var stackable_to_slot: InventorySlot = check_if_stackable()
+	#
+	#if !stackable_to_slot: return false
+	#if InventoryItemHandler.extract_item_stack_size(stackable_to_slot.stored_item) >= InventoryItemHandler.extract_item_max_stack_size(stackable_to_slot.stored_item): return false
+	#
+	#
+	#if false: # If player right-clicks to drop just 1 item into the stack
+		#stackable_to_slot.stored_item = InventoryItemHandler.add_to_stack(stackable_to_slot.stored_item, 1)
+		#deduct_from_item_ghost(1)
+	#else:
+		#var held_stack_size: int = InventoryItemHandler.extract_item_stack_size(item_ghost.stored_item)
+		#var remaining_until_target_reaches_max: int = (
+			#InventoryItemHandler.extract_item_max_stack_size(stackable_to_slot.stored_item)
+			#- InventoryItemHandler.extract_item_stack_size(stackable_to_slot.stored_item)
+		#)
+		#
+		## Get lesser between amount in item_ghost and amount until target reaches max_stack_size
+		#var amount_to_add_to_stack: int = min(held_stack_size, remaining_until_target_reaches_max)
+		#stackable_to_slot.stored_item = InventoryItemHandler.add_to_stack(stackable_to_slot.stored_item, amount_to_add_to_stack)
+		#deduct_from_item_ghost(amount_to_add_to_stack)
+	#return true
+		#
+#
+### Deducts some amount of items from the item_ghost and removes it if it reaches 0 stack_size.
+#func deduct_from_item_ghost(amount: int) -> void:
+	#item_ghost.stored_item = InventoryItemHandler.add_to_stack(item_ghost.stored_item, -amount)
+	#item_ghost.update_visuals()
+		#
+	#var new_ghost_stack_size: int = InventoryItemHandler.extract_item_stack_size(item_ghost.stored_item)
+	#if new_ghost_stack_size is int and new_ghost_stack_size <= 0:
+		#remove_item_ghost()
 	

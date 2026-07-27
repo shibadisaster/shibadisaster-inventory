@@ -36,6 +36,10 @@ func _ready() -> void:
 	generate_inventory_slots()
 
 
+func _process(delta: float) -> void:
+	update_all_stored_item_parents()
+
+
 func _set_default_properties() -> void:
 	self.offset_transform_enabled = true
 	self.offset_transform_visual_only = false
@@ -134,9 +138,9 @@ func increment_item_stack(slot_coord: Vector2i, item: Resource, max_stack_amount
 	var slot_item_slot: InventorySlot = slots[slot_coord].stored_item_parent
 	
 	# We should never reach this, this is a failsafe or if this is called manually.
-	if !slot_item_slot.stored_item_parent: return null
+	if !slot_item_slot: return null
 	
-	var slot_item: Resource = slot_item_slot.stored_item.duplicate()
+	var slot_item: Resource = slot_item_slot.stored_item
 	
 	if !InventoryItemHandler.is_stackable(slot_item, item): return null
 	if slot_item.inventory_stack_size >= slot_item.inventory_max_stack_size: return null
@@ -148,8 +152,10 @@ func increment_item_stack(slot_coord: Vector2i, item: Resource, max_stack_amount
 	)
 	if max_stack_amount != -1: amount_to_be_stacked = min(max_stack_amount, amount_to_be_stacked)
 	
-	slot_item.stack_size += amount_to_be_stacked
-	item.stack_size -= amount_to_be_stacked
+	var new_slot_item: Resource = slot_item.duplicate()
+	new_slot_item.inventory_stack_size += amount_to_be_stacked
+	slot_item_slot.stored_item = new_slot_item
+	item.inventory_stack_size -= amount_to_be_stacked
 	
 	return item
 
