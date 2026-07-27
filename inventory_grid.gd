@@ -72,7 +72,31 @@ func get_intersecting_item_slots(target_slot_coord: Vector2i, item: Resource) ->
 				intersecting_item_slots.append(intersecting_item_slot)
 				
 	return intersecting_item_slots
+	
+	
+func is_item_in_bounds(target_slot_coord: Vector2i, item: Resource) -> bool:
+	for cell in item.inventory_shape:
+		var check_coord = target_slot_coord + cell
+		if check_coord not in slots.keys(): return false
+	return true
+	
 
+## If called on a coord with a stored_item, updates all other coords taken up by the stored_item to have that coord be the stored_item_parent.
+func update_stored_item_parent(slot_coord: Vector2i) -> void:
+	if slots[slot_coord].stored_item:
+		var parent_slot: InventorySlot = slots[slot_coord]
+		for cell in slots[slot_coord].stored_item.inventory_shape:
+			var update_coord: Vector2i = slot_coord + cell
+			slots[update_coord].stored_item_parent = parent_slot
+
+
+func update_all_stored_item_parents() -> void:
+	for slot_coord in slots.keys():
+		slots[slot_coord].stored_item_parent = null
+		
+	for slot_coord in slots.keys():
+		if slots[slot_coord].stored_item:
+			update_stored_item_parent(slot_coord)
 
 # okay so there is no way around this i need to move all the helper funcs into here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # for sanity, 
@@ -80,26 +104,81 @@ func get_intersecting_item_slots(target_slot_coord: Vector2i, item: Resource) ->
 # 	ALL things relating to exterior objs or those on a layer above inventorygrids (saving, loading, itemghost, user input, projectionghost) should go in inventorymanager
 
 
-## Attempts to add an item anywhere they can fit, returning an inventory_stack_size == 0 item Resource if all in the item's stack were able to be added, null, an inventory_stack_size == (n - x) item Resource if it was able to stack some (x) but not all (n), and null if it couldn't fit anywhere.
+## Attempts to add an item anywhere it can fit, returning an inventory_stack_size == 0 item Resource if all in the item's stack were able to be added, null, an inventory_stack_size == (n - x) item Resource if it was able to stack some (x) but not all (n), and null if it couldn't fit anywhere.
 func auto_add_item(item: Resource) -> Resource:
 	return null
 
 
 ## Attempts to add an item to the specified slot_coord, returning an inventory_stack_size == 0 item Resource if all in the item's stack were able to be added, null, an inventory_stack_size == (n - x) item Resource if it was able to stack some (x) but not all (n), and null if it couldn't fit anywhere.
-func add_item(slot_coord: Vector2i, item: Resource, amount: int = 1) -> Resource:
+func add_item(slot_coord: Vector2i, item: Resource, max_stack_amount: int = -1) -> Resource:
+	if slot_coord not in slots.keys(): return null
+	
+	var increment_result = increment_item_stack(slot_coord, item, max_stack_amount)
+	if increment_result is Resource:
+		if increment_result.inventory_stack_size <= 0: return increment_result
+	
+	var place_result = place_item(slot_coord, item, max_stack_amount)
+	if place_result is Resource:
+		if place_result.inventory_stack_size <= 0: return place_result
+		else: return place_result
+	
+	# If we get to this point, neither increment_result nor place_result returned a success, so we return a failure.
 	return null
 	
 
-## Increments the item stack at slot_coord. Returns null if the stack cannot be incremented (either if at max or grid does not support stacking) and an item Resource with the remaining stack amount if it was able to stack. 
-func increment_item_stack(slot_coord: Vector2i, item: Resource, amount: int = 1) -> Resource:
-	return null
+## Attempts to increment the item stack at slot_coord. Returns null if the stack cannot be incremented (either if at max, doesn't exist, or grid does not support stacking) and an item Resource with the remaining stack amount if it was able to stack. 
+func increment_item_stack(slot_coord: Vector2i, item: Resource, max_stack_amount: int = -1) -> Resource:
+	if !self.stacking_allowed: return null
+	if slot_coord not in slots.keys(): return null
+	
+	var slot_item_slot: InventorySlot = slots[slot_coord].stored_item_parent
+	
+	# We should never reach this, this is a failsafe or if this is called manually.
+	if !slot_item_slot.stored_item_parent: return null
+	
+	var slot_item: Resource = slot_item_slot.stored_item.duplicate()
+	
+	if !InventoryItemHandler.is_stackable(slot_item, item): return null
+	if slot_item.inventory_stack_size >= slot_item.inventory_max_stack_size: return null
+	
+	# Get lesser between amount in item_ghost and amount until target reaches max_stack_size.
+	var amount_to_be_stacked: int = min(
+		item.inventory_stack_size, 
+		slot_item.inventory_max_stack_size - slot_item.inventory_stack_size
+	)
+	if max_stack_amount != -1: amount_to_be_stacked = min(max_stack_amount, amount_to_be_stacked)
+	
+	slot_item.stack_size += amount_to_be_stacked
+	item.stack_size -= amount_to_be_stacked
+	
+	return item
 
 
-## Places the item at the slot coord. Returns null if it can't be placed there and an item Resource with stack amount == 0 if it was able to be placed.
-func place_item(slot_coord: Vector2i, item: Resource, amount: int = 1) -> Resource:
-	return null
+## Attempts to place the item at the slot coord. Returns null if it can't be placed there and an item Resource with stack amount == 0 if it was able to be placed.
+func place_item(slot_coord: Vector2i, item: Resource, max_stack_amount: int = -1) -> Resource:
+	if !is_item_in_bounds(slot_coord, item): return null
+	if len(get_intersecting_item_slots(slot_coord, item)) != 0: return null
+	
+	var amount_in_placed_stack: int = item.inventory_stack_size
+	if max_stack_amount != -1: amount_in_placed_stack = min(amount_in_placed_stack, max_stack_amount)
+	var remaining_in_item: int = item.inventory_stack_size - amount_in_placed_stack
+	
+	var new_item = item.duplicate()
+	new_item.inventory_stack_size = amount_in_placed_stack
+	
+	var target_slot: InventorySlot = slots[slot_coord]
+	target_slot.stored_item = new_item
+	update_all_stored_item_parents()
+	
+	var original_item = item.duplicate()
+	original_item.inventory_stack_size = remaining_in_item
+	
+	return original_item
 	
 	
 ## Removes the item from the slot coord and returns it.
 func remove_item(slot_coord: Vector2i) -> Resource:
-	return null
+	var item: Resource = slots[slot_coord].stored_item_parent.stored_item
+	slots[slot_coord].stored_item_parent.stored_item = null
+	update_all_stored_item_parents()
+	return item
