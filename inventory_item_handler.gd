@@ -91,7 +91,7 @@ func extract_item_stack_size(item: Resource) -> int:
 	
 func extract_item_stacking_criteria(item: Resource) -> Array[String]:
 	var st_crit = item.get("inventory_stacking_criteria")
-	if st_crit is Array[String]: return st_crit
+	if st_crit and st_crit is Array[String]: return st_crit
 	else:
 		print("[shibadisaster - Inventory] Item has no inventory_stacking_criteria! Defaulting to only check inventory_shape and inventory_texture.")
 		return ["inventory_shape", "inventory_texture"]

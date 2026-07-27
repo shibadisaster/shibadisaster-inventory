@@ -93,29 +93,37 @@ func slot_unhovered(slot: InventorySlot):
 
 
 func _input(event: InputEvent) -> void:
-	if event.is_action_pressed("InventoryClick"):
+	if event.is_action_pressed("InventoryClick") or event.is_action_pressed("InventoryClickSecondary"):
 		if hovered_slot:
-			if !item_ghost: attempt_item_pickup(hovered_slot)
-			else: attempt_item_drop()
+			if !item_ghost: attempt_item_pickup(hovered_slot, event.is_action_pressed("InventoryClickSecondary"))
+			else: attempt_item_drop(event.is_action_pressed("InventoryClickSecondary"))
 
 
-## Creates an InventoryItemGhost (item_ghost) based on the item in slot then removes that item from slot.
-func attempt_item_pickup(slot: InventorySlot) -> void:
+## Creates an InventoryItemGhost (item_ghost) based on the item in slot then removes that item from slot. If alternate_action, only picks up half.
+func attempt_item_pickup(slot: InventorySlot, alternate_action: bool) -> void:
 	if slot.stored_item_parent:
 		var slot_with_stored_item = slot.stored_item_parent
+		
+		var amount_to_be_picked_up: int = InventoryItemHandler.extract_item_stack_size(slot_with_stored_item.stored_item)
+		if alternate_action: amount_to_be_picked_up = ceil(amount_to_be_picked_up / 2.0)
+		var amount_remaining_in_slot: int = InventoryItemHandler.extract_item_stack_size(slot_with_stored_item.stored_item) - amount_to_be_picked_up
+		
 		var ghost: InventoryItemGhost = InventoryItemGhost.instantiate()
 		ghost.stored_item = slot_with_stored_item.stored_item.duplicate()
+		ghost.stored_item.inventory_stack_size = amount_to_be_picked_up
 		ghost.update_visuals()
 		ghost.initial_positioning(slot_with_stored_item)
 		
 		$CanvasLayer.add_child(ghost)
 		self.item_ghost = ghost
 		
-		attempt_item_remove(slot_with_stored_item)
+		# TODO: DJSUHDJUSDHUJSHDIAHISHDIASUJHDIAHSIDHAIUSHDIUASHDIUAHSIUJCDASIJUNCIJASBNCIJSANIJDHASJOVDM ASUVDIPASJ<IODAJSIODVJMAOSIDJMIOASJDIOAHJIU#EH*URUF#*(FUH*(FU*(#UF*(#UF*(UA#*(U*($UA**IW)E(W_))_D()_!@)_()_E
+		if amount_remaining_in_slot == 0: attempt_item_remove(slot_with_stored_item)
+		else: slot_with_stored_item.stored_item.inventory_stack_size = amount_remaining_in_slot	
 		
 
 ## i dont know anymore
-func attempt_item_drop() -> void:
+func attempt_item_drop(alternate_action: bool) -> void:
 	var check_result: ItemPlaceError = check_item_place()
 	
 	if check_result == ItemPlaceError.NO_ERROR: 
@@ -123,8 +131,14 @@ func attempt_item_drop() -> void:
 		if self.hovered_slot.parent_grid.stacking_allowed: 
 			# AND target grid supports stacking...
 			# Then just place the item in the new slot (we know it will fit with no conflicts)
-			attempt_item_place(self.hovered_slot, self.item_ghost.stored_item)
-			remove_item_ghost()
+			if !alternate_action:
+				attempt_item_place(self.hovered_slot, self.item_ghost.stored_item)
+				remove_item_ghost()
+			else:
+				var new_item: Resource = item_ghost.stored_item.duplicate()
+				new_item.inventory_stack_size = 1
+				attempt_item_place(self.hovered_slot, new_item)
+				deduct_from_item_ghost(1)
 		else: 
 			# AND target grid disallows stacking...
 			var new_single_item: Resource = self.item_ghost.stored_item.duplicate()
@@ -165,7 +179,7 @@ func attempt_item_replace() -> void:
 	var slot_to_be_replaced: InventorySlot = check_if_replaceable()
 	if slot_to_be_replaced:
 		var old_item_ghost: InventoryItemGhost = self.item_ghost
-		attempt_item_pickup(slot_to_be_replaced) # Make a ghost for the replaced slot
+		attempt_item_pickup(slot_to_be_replaced, false) # Make a ghost for the replaced slot
 		attempt_item_place(self.hovered_slot, old_item_ghost.stored_item)
 		if projection_ghost: 
 			projection_ghost.stored_item = item_ghost.stored_item
