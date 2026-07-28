@@ -35,6 +35,7 @@ func _process(delta: float) -> void:
 	update_projection_ghost()
 	update_item_ghost()
 
+
 ## Sets the hovered_slot to whichever InventorySlot is most appropriate.
 func update_hovered_slot(delta: float) -> void:
 	var old_hovered_slot: InventorySlot = hovered_slot
@@ -108,8 +109,13 @@ func update_item_ghost() -> void:
 	if item_ghost:
 		if item_ghost.depleted:
 			item_ghost.target_for_depleted_move = hovered_slot
-			item_ghost.start_depletion_animation()
 			self.item_ghost = null
+			
+			
+func remove_item_ghost(target_for_depleted_move: InventorySlot) -> void:
+	item_ghost.depleted = true
+	item_ghost.target_for_depleted_move = target_for_depleted_move
+	item_ghost = null
 
 
 func _input(event: InputEvent) -> void:
@@ -127,7 +133,9 @@ func _input(event: InputEvent) -> void:
 					item_ghost.stored_item,
 					event.is_action_pressed("InventoryClickSecondary")
 				)
-				if drop_result is Resource: item_ghost.stored_item = drop_result
+				if drop_result is Resource: 
+					remove_item_ghost(hovered_slot)
+					create_item_ghost(drop_result, hovered_slot)
 
 
 ##### ACTIONS #####

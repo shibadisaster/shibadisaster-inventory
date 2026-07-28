@@ -23,7 +23,7 @@ void fragment() {
 	else if (valid == 1) { color = textureLod(semivalid_gradient, vec2(noise_val, 0.5), 0.0); }
 	else { color = textureLod(invalid_gradient, vec2(noise_val, 0.5), 0.0); }
 	float original_alpha = COLOR.a;
-	color.a = original_alpha;
+	color.a = original_alpha * 0.3;
 	
 	COLOR = color;
 }
