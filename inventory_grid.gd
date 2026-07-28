@@ -118,20 +118,18 @@ func auto_add_item(item: Resource) -> Resource:
 func add_item(slot_coord: Vector2i, item: Resource, max_stack_amount: int = -1) -> Resource:
 	if slot_coord not in slots.keys(): return null
 	
-	for cell in item.inventory_shape: # We check all possible cells to see if it overlaps with a stackable item anywhere.
-		var target_coord: Vector2i = slot_coord + cell
-		if target_coord not in slots.keys(): continue
-		
-		var increment_result = increment_item_stack(target_coord, item, max_stack_amount)
-		print("INCREMENT RESULT WAS ", increment_result)
-		if increment_result is Resource:
-			#if increment_result.inventory_stack_size <= 0: return increment_result
-			return increment_result
+	# If stacking is allowed, attempt to increment first...
+	if stacking_allowed:
+		for cell in item.inventory_shape: # We check all possible cells to see if it overlaps with a stackable item anywhere.
+			var target_coord: Vector2i = slot_coord + cell
+			if target_coord not in slots.keys(): continue
+			
+			var increment_result = increment_item_stack(target_coord, item, max_stack_amount)
+			if increment_result is Resource: return increment_result
 	
+	# Then, if not early returned, attempt to place.
 	var place_result = place_item(slot_coord, item, max_stack_amount)
-	if place_result is Resource:
-		if place_result.inventory_stack_size <= 0: return place_result
-		else: return place_result
+	if place_result is Resource: return place_result
 	
 	# If we get to this point, neither increment_result nor place_result returned a success, so we return a failure.
 	return null
@@ -173,7 +171,9 @@ func place_item(slot_coord: Vector2i, item: Resource, max_stack_amount: int = -1
 	if len(get_intersecting_item_slots(slot_coord, item)) != 0: return null
 	
 	var amount_in_placed_stack: int = item.inventory_stack_size
+	if !stacking_allowed: amount_in_placed_stack = min(1, amount_in_placed_stack)
 	if max_stack_amount != -1: amount_in_placed_stack = min(amount_in_placed_stack, max_stack_amount)
+	
 	var remaining_in_item: int = item.inventory_stack_size - amount_in_placed_stack
 	
 	var new_item = item.duplicate()

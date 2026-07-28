@@ -52,14 +52,14 @@ func extract_item_id(item: Resource) -> String:
 
 
 func is_stackable(item1: Resource, item2: Resource) -> bool:
-	print("Comparing ", item1.name, " to ", item2.name)
+	#print("Comparing ", item1.name, " to ", item2.name)
 	if !item1: return false
 	if !item2: return false
 	var stacking_criteria: Array[String] = get_stacking_criteria_union(item1, item2) # Even though this should auto-return false if stacking_criteria is different? I didn't think about this that hard :333
 	for criterion in stacking_criteria:
 		var item1criterion := get_property(item1, criterion)
 		var item2criterion := get_property(item2, criterion)
-		print("Checking criterion ", criterion, ", ", str(item1criterion), " vs. ", str(item2criterion))
+		#print("Checking criterion ", criterion, ", ", str(item1criterion), " vs. ", str(item2criterion))
 		if item1criterion != item2criterion: return false
 	return true
 	

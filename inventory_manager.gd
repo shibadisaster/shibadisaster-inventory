@@ -142,23 +142,20 @@ func pickup_item(slot: InventorySlot, alternate_action: bool) -> Resource:
 
 ## Attempts to add an item in the specified slot, attempting to replace instead if it can't be added.
 func drop_item(slot: InventorySlot, item: Resource, alternate_action: bool) -> Resource:
-	print("ATTEMPTING TO DROP ", item.name)
 	var add_result: Resource = slot.parent_grid.add_item(slot.slot_coord, item)
-	print("--- ADD RESULT RETURNED ", add_result)
-	if add_result is Resource:
-		return add_result
+	if add_result is Resource: return add_result
 	else:
+		if !slot.parent_grid.stacking_allowed and item.inventory_stack_size > 1: return null # We prevent this because in a nonstackable grid, replacing (a, 1) with (a, 3) attempts to place (a, 3) but can only place 1, voiding the rest. This is also the default behavior in games like Factorio. 
 		var replace_result: Resource = replace_item(slot, item)
-		print("------- REPLACE RESULT RETURNED ", replace_result)
 		return replace_result
+	return null
 		
 
 ## Returns the InventorySlot containing the item to be replaced IF it can be replaced. Replacement can occur IF there is only one item intersecting the new placement.
 func check_if_replaceable(slot: InventorySlot, item: Resource) -> InventorySlot: 
-	if !hovered_slot or !item_ghost: return null
-	var intersecting_slots: Array[InventorySlot] = hovered_slot.parent_grid.get_intersecting_item_slots(
-		hovered_slot.slot_coord, 
-		item_ghost.stored_item
+	var intersecting_slots: Array[InventorySlot] = slot.parent_grid.get_intersecting_item_slots(
+		slot.slot_coord, 
+		item
 	)
 	if len(intersecting_slots) == 1: return intersecting_slots[0]
 	else: return null
