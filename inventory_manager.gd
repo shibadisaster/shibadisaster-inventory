@@ -142,11 +142,14 @@ func pickup_item(slot: InventorySlot, alternate_action: bool) -> Resource:
 
 ## Attempts to add an item in the specified slot, attempting to replace instead if it can't be added.
 func drop_item(slot: InventorySlot, item: Resource, alternate_action: bool) -> Resource:
-	var add_result: Resource = slot.parent_grid.add_item(hovered_slot.slot_coord, item_ghost.stored_item)
+	print("ATTEMPTING TO DROP ", item.name)
+	var add_result: Resource = slot.parent_grid.add_item(slot.slot_coord, item)
+	print("--- ADD RESULT RETURNED ", add_result)
 	if add_result is Resource:
 		return add_result
 	else:
 		var replace_result: Resource = replace_item(slot, item)
+		print("------- REPLACE RESULT RETURNED ", replace_result)
 		return replace_result
 		
 
@@ -163,17 +166,18 @@ func check_if_replaceable(slot: InventorySlot, item: Resource) -> InventorySlot:
 
 ## Attempts to replace a slot (if possible) by "simultaneously" placing the new item and picking up the original one.
 func replace_item(slot: InventorySlot, new_item: Resource) -> Resource:
+	if !slot.parent_grid.is_item_in_bounds(slot.slot_coord, new_item): return null
+	
 	var slot_to_be_replaced: InventorySlot = check_if_replaceable(slot, new_item)
-	if slot_to_be_replaced:
-		print("REPLACEDDDD")
-		var original_item = pickup_item(slot_to_be_replaced, false)
-		slot.parent_grid.add_item(slot.slot_coord, new_item)
-		if projection_ghost: 
-			projection_ghost.stored_item = original_item
-			projection_ghost.update_visuals()
-			projection_ghost.reset_fade()
-		return original_item
-	else: return null
+	if !slot_to_be_replaced: return null
+
+	var original_item = pickup_item(slot_to_be_replaced, false)
+	slot.parent_grid.add_item(slot.slot_coord, new_item)
+	if projection_ghost: 
+		projection_ghost.stored_item = original_item
+		projection_ghost.update_visuals()
+		projection_ghost.reset_fade()
+	return original_item
 
 
 ## Checks for the validity of the item placement. Priority goes as follows: [br][br]

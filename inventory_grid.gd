@@ -118,9 +118,15 @@ func auto_add_item(item: Resource) -> Resource:
 func add_item(slot_coord: Vector2i, item: Resource, max_stack_amount: int = -1) -> Resource:
 	if slot_coord not in slots.keys(): return null
 	
-	var increment_result = increment_item_stack(slot_coord, item, max_stack_amount)
-	if increment_result is Resource:
-		if increment_result.inventory_stack_size <= 0: return increment_result
+	for cell in item.inventory_shape: # We check all possible cells to see if it overlaps with a stackable item anywhere.
+		var target_coord: Vector2i = slot_coord + cell
+		if target_coord not in slots.keys(): continue
+		
+		var increment_result = increment_item_stack(target_coord, item, max_stack_amount)
+		print("INCREMENT RESULT WAS ", increment_result)
+		if increment_result is Resource:
+			#if increment_result.inventory_stack_size <= 0: return increment_result
+			return increment_result
 	
 	var place_result = place_item(slot_coord, item, max_stack_amount)
 	if place_result is Resource:
