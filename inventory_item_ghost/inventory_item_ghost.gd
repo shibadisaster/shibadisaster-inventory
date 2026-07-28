@@ -1,4 +1,4 @@
-extends TextureRect
+extends Control
 class_name InventoryItemGhost
 
 
@@ -17,7 +17,7 @@ func _process(delta: float) -> void:
 
 
 func update_visuals() -> void:
-	$".".texture = InventoryItemHandler.extract_item_texture(stored_item)
+	$ItemTexture.texture = InventoryItemHandler.extract_item_texture(stored_item)
 	var stack_size: int = InventoryItemHandler.extract_item_stack_size(stored_item)
 	if stack_size == 1: $MarginContainer/Label.text = ""
 	else: $MarginContainer/Label.text = str(stack_size)
@@ -33,8 +33,8 @@ func update_positioning(delta: float) -> void:
 			40.0 * delta
 		)
 	)
-	$".".offset_transform_rotation = lerp_angle(
-		$".".offset_transform_rotation,
+	$ItemTexture.offset_transform_rotation = lerp_angle(
+		$ItemTexture.offset_transform_rotation,
 		deg_to_rad(InventoryItemHandler.extract_item_rotation(stored_item)),
 		20.0 * delta
 	)
@@ -47,7 +47,7 @@ func initial_positioning(slot: InventorySlot) -> void:
 			slot.parent_grid.inventory_slot_size / 2.0, slot.parent_grid.inventory_slot_size / 2.0
 		)
 	)
-	$".".offset_transform_rotation = deg_to_rad(InventoryItemHandler.extract_item_rotation(stored_item))
+	$ItemTexture.offset_transform_rotation = deg_to_rad(InventoryItemHandler.extract_item_rotation(stored_item))
 
 
 func _input(event: InputEvent) -> void:
@@ -71,7 +71,7 @@ func start_depletion_animation() -> void:
 				target_for_depleted_move.parent_grid.inventory_slot_size / 2.0,
 				target_for_depleted_move.parent_grid.inventory_slot_size / 2.0
 			), 
-			0.1
+			0.2
 		).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		depletion_tween.tween_callback(self.queue_free)
 	else: self.queue_free()
