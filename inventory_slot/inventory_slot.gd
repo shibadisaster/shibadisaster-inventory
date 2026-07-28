@@ -7,6 +7,7 @@ var slot_coord: Vector2i
 
 var stored_item: Resource = null
 var stored_item_parent: InventorySlot = null
+var previous_frame_stored_item_parent: InventorySlot = null
 
 var visual_hover_factor: float = 0.0
 var visual_hover_time: float = 0.05
@@ -20,6 +21,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	update_is_hovered(delta)
 	update_visuals()
+	previous_frame_stored_item_parent = stored_item_parent
 
 
 func update_visuals() -> void:

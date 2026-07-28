@@ -94,6 +94,7 @@ func update_stored_item_parent(slot_coord: Vector2i) -> void:
 			slots[update_coord].stored_item_parent = parent_slot
 
 
+## Updates all slots taken up by an item to have stored_item_parents.
 func update_all_stored_item_parents() -> void:
 	for slot_coord in slots.keys():
 		slots[slot_coord].stored_item_parent = null
@@ -184,6 +185,9 @@ func place_item(slot_coord: Vector2i, item: Resource, max_stack_amount: int = -1
 	
 ## Removes the item from the slot coord and returns it.
 func remove_item(slot_coord: Vector2i) -> Resource:
+	if slot_coord not in slots.keys(): return null
+	if !slots[slot_coord].stored_item_parent: return null
+	
 	var item: Resource = slots[slot_coord].stored_item_parent.stored_item
 	slots[slot_coord].stored_item_parent.stored_item = null
 	update_all_stored_item_parents()
