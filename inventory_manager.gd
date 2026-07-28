@@ -9,14 +9,14 @@ enum ItemPlaceError {
 	SLOT_ALREADY_OCCUPIED,
 	SLOT_OUTSIDE_BOUNDS,
 	SLOT_NOT_HOVERED,
-	GHOST_DOESNT_EXIST
+	ITEM_DOESNT_EXIST
 }
 const ITEM_PLACE_ERROR_READABLE: Dictionary[ItemPlaceError, String] = {
 	ItemPlaceError.NO_ERROR: "N/A",
 	ItemPlaceError.SLOT_ALREADY_OCCUPIED: "New placement is already occupied!",
 	ItemPlaceError.SLOT_OUTSIDE_BOUNDS: "New placement has a cell out of bounds!",
 	ItemPlaceError.SLOT_NOT_HOVERED: "No slot selected!",
-	ItemPlaceError.GHOST_DOESNT_EXIST: "No item picked up!"
+	ItemPlaceError.ITEM_DOESNT_EXIST: "No item picked up!"
 }
 
 var hovered_slot: InventorySlot = null
@@ -46,8 +46,12 @@ func update_hovered_slot(delta: float) -> void:
 
 ## Updates target_slot and visuals of the projection_ghost.
 func update_projection_ghost() -> void:
-	var error: ItemPlaceError = check_item_place()
-	if error == ItemPlaceError.NO_ERROR or error == ItemPlaceError.SLOT_ALREADY_OCCUPIED: # TODO: make cleaner by moving this outward (ItemPlaceError is robust enough to handle it)
+	if !item_ghost: 
+		remove_projection_ghost()
+		return
+	
+	var error: ItemPlaceError = check_item_place(hovered_slot, item_ghost.stored_item)
+	if error == ItemPlaceError.NO_ERROR or error == ItemPlaceError.SLOT_ALREADY_OCCUPIED:
 		if !projection_ghost: create_projection_ghost()
 		projection_ghost.target_slot = hovered_slot
 		
@@ -187,27 +191,17 @@ func replace_item(slot: InventorySlot, new_item: Resource) -> Resource:
 
 ## Checks for the validity of the item placement. Priority goes as follows: [br][br]
 ## SLOT_NOT_HOVERED: There is no hovered_slot [br]
-## GHOST_DOESNT_EXIST: There is no item_ghost [br]
+## ITEM_DOESNT_EXIST: There is no item [br]
 ## SLOT_OUTSIDE_BOUNDS: One of the slots where the placement would be doesn't exist [br]
 ## SLOT_ALREADY_OCCUPIED: One of the slots where the placement would be already has an item [br]
 ## NO_ERROR: No error :)
-func check_item_place() -> ItemPlaceError:
-	if !hovered_slot: return ItemPlaceError.SLOT_NOT_HOVERED
-	if !item_ghost: return ItemPlaceError.GHOST_DOESNT_EXIST
+func check_item_place(slot: InventorySlot, item: Resource) -> ItemPlaceError:
+	if !slot: return ItemPlaceError.SLOT_NOT_HOVERED
+	if !item: return ItemPlaceError.ITEM_DOESNT_EXIST
 	
-	var target_coord: Vector2i = hovered_slot.slot_coord
-	var is_outside_bounds: bool = false
-	var is_already_occupied: bool = false
-	for cell in InventoryItemHandler.extract_item_shape(item_ghost.stored_item):
-		var checked_coord: Vector2i = target_coord + cell
-		if checked_coord not in hovered_slot.parent_grid.slots.keys(): 
-			is_outside_bounds = true
-			break # We break here because SLOT_OUTSIDE_BOUNDS is higher priority than SLOT_ALREADY_OCCUPIED
-		if hovered_slot.parent_grid.slots[checked_coord].stored_item_parent: 
-			is_already_occupied = true
-			
-			
-	if is_outside_bounds: return ItemPlaceError.SLOT_OUTSIDE_BOUNDS
-	if is_already_occupied: return ItemPlaceError.SLOT_ALREADY_OCCUPIED
-
+	var target_coord: Vector2i = slot.slot_coord
+	
+	if !slot.parent_grid.is_item_in_bounds(slot.slot_coord, item): return ItemPlaceError.SLOT_OUTSIDE_BOUNDS
+	if len(slot.parent_grid.get_intersecting_item_slots(slot.slot_coord, item)) > 0: return ItemPlaceError.SLOT_ALREADY_OCCUPIED
+	
 	return ItemPlaceError.NO_ERROR
