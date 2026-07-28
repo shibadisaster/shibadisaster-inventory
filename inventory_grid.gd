@@ -189,12 +189,25 @@ func place_item(slot_coord: Vector2i, item: Resource, max_stack_amount: int = -1
 	return original_item
 	
 	
-## Removes the item from the slot coord and returns it.
-func remove_item(slot_coord: Vector2i) -> Resource:
+## Removes the item or some amount of items from the slot coord and returns it.
+func remove_item(slot_coord: Vector2i, max_stack_amount: int = -1, get_half: bool = false) -> Resource:
 	if slot_coord not in slots.keys(): return null
 	if !slots[slot_coord].stored_item_parent: return null
 	
 	var item: Resource = slots[slot_coord].stored_item_parent.stored_item
-	slots[slot_coord].stored_item_parent.stored_item = null
+	
+	var amount_to_be_removed: int = item.inventory_stack_size
+	if get_half: amount_to_be_removed = ceil(amount_to_be_removed / 2.0)
+	if max_stack_amount != -1: amount_to_be_removed = min(amount_to_be_removed, max_stack_amount)
+	var remaining_amount: int = item.inventory_stack_size - amount_to_be_removed
+	
+	if remaining_amount <= 0: slots[slot_coord].stored_item_parent.stored_item = null
+	else: 
+		var new_item: Resource = item.duplicate()
+		new_item.inventory_stack_size = remaining_amount
+		slots[slot_coord].stored_item_parent.stored_item = new_item
+	
 	update_all_stored_item_parents()
+	
+	item.inventory_stack_size = amount_to_be_removed
 	return item

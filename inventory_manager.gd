@@ -148,13 +148,15 @@ func _input(event: InputEvent) -> void:
 ## Creates an InventoryItemGhost (item_ghost) based on the item in slot then removes that item from slot. If alternate_action, only picks up half.
 ## Attempts to pickup the item at the specified slot.
 func pickup_item(slot: InventorySlot, alternate_action: bool) -> Resource:
-	var remove_result: Resource = slot.parent_grid.remove_item(slot.slot_coord)
+	var remove_result: Resource = slot.parent_grid.remove_item(slot.slot_coord, -1, alternate_action)
 	return remove_result
 
 
 ## Attempts to add an item in the specified slot, attempting to replace instead if it can't be added.
 func drop_item(slot: InventorySlot, item: Resource, alternate_action: bool) -> Resource:
-	var add_result: Resource = slot.parent_grid.add_item(slot.slot_coord, item)
+	var max_amount: int = 1 if alternate_action else -1
+	
+	var add_result: Resource = slot.parent_grid.add_item(slot.slot_coord, item, max_amount)
 	if add_result is Resource: return add_result
 	else:
 		if !slot.parent_grid.stacking_allowed and item.inventory_stack_size > 1: return null # We prevent this because in a nonstackable grid, replacing (a, 1) with (a, 3) attempts to place (a, 3) but can only place 1, voiding the rest. This is also the default behavior in games like Factorio. 
