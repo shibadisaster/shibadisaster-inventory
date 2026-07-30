@@ -110,8 +110,38 @@ func update_all_stored_item_parents() -> void:
 
 
 ## Attempts to add an item anywhere it can fit, returning an inventory_stack_size == 0 item Resource if all in the item's stack were able to be added, null, an inventory_stack_size == (n - x) item Resource if it was able to stack some (x) but not all (n), and null if it couldn't fit anywhere.
-func auto_add_item(item: Resource) -> Resource:
-	return null
+func auto_add_item(p_item: Resource) -> Resource:
+	var slot_coords: Array[Vector2i] = get_sorted_slot_coords()
+	
+	var non_identity_rotations := [1, 2, 3]
+	non_identity_rotations.shuffle()
+	var rotations := [0] + non_identity_rotations
+	
+	var item: Resource = p_item.duplicate()
+	for slot_coord in slot_coords:
+		for rotation_amount in rotations:
+			var rotated_item: Resource = item.duplicate()
+			for i in range(rotation_amount):
+				rotated_item = InventoryItemHandler.rotate_item(rotated_item)
+	
+			var add_result: Resource = add_item(slot_coord, rotated_item)
+			if add_result: 
+				item.inventory_stack_size = add_result.inventory_stack_size
+			if item.inventory_stack_size <= 0: return item
+		
+	return item
+	
+	
+func get_sorted_slot_coords() -> Array[Vector2i]:
+	var slot_coords: Array[Vector2i] = slots.keys().duplicate()
+	var slot_coords_swizzled: Array[Vector2i] = []
+	for slot_coord in slot_coords:
+		slot_coords_swizzled.append(Vector2i(slot_coord.y, slot_coord.x))
+	slot_coords_swizzled.sort()
+	slot_coords = []
+	for slot_coord_swizzled in slot_coords_swizzled:
+		slot_coords.append(Vector2i(slot_coord_swizzled.y, slot_coord_swizzled.x))
+	return slot_coords
 
 
 ## Attempts to add an item to the specified slot_coord, returning an inventory_stack_size == 0 item Resource if all in the item's stack were able to be added, null, an inventory_stack_size == (n - x) item Resource if it was able to stack some (x) but not all (n), and null if it couldn't fit anywhere.
