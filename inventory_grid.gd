@@ -50,6 +50,8 @@ func generate_inventory_slots() -> void:
 		if slot_coord not in slots.keys():
 			generate_slot(slot_coord)
 			
+	update_all_slot_borders()
+			
 
 func generate_slot(slot_coord: Vector2i) -> void:
 	var slot: InventorySlot = InventorySlot.instantiate()
@@ -61,6 +63,14 @@ func generate_slot(slot_coord: Vector2i) -> void:
 	self.add_child(slot)
 	
 	slots[slot_coord] = slot
+	update_all_slot_borders() # Will not work on initial because borders will not yet be ready.
+	
+	
+		
+func update_all_slot_borders() -> void:
+	for slot_coord in slots.keys():
+		var slot: InventorySlot = slots[slot_coord]
+		slot.update_borders()
 
 
 ## Returns SPECIFICALLY the 0, 0 or "core slot" of all intersecting items.

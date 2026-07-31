@@ -55,3 +55,35 @@ func update_is_hovered(delta: float) -> void:
 
 func _on_mouse_exited() -> void:
 	InventoryManager.slot_unhovered(self)
+
+
+
+
+
+@onready var square_borders: Dictionary[TextureRect, Array] = {
+	$SquareBorders/TopAndTopRight/Edge: [Vector2i(0, -1)],
+	$SquareBorders/TopAndTopRight/Corner: [Vector2i(1, -1), [Vector2i(0, -1), Vector2i(1, 0)]],
+	$SquareBorders/RightAndBottomRight/Edge: [Vector2i(1, 0)],
+	$SquareBorders/RightAndBottomRight/Corner: [Vector2i(1, 1), [Vector2i(1, 0), Vector2i(0, 1)]],
+	$SquareBorders/BottomAndBottomLeft/Edge: [Vector2i(0, 1)],
+	$SquareBorders/BottomAndBottomLeft/Corner: [Vector2i(-1, 1), [Vector2i(0, 1), Vector2i(-1, 0)]],
+	$SquareBorders/LeftAndTopLeft/Edge: [Vector2i(-1, 0)],
+	$SquareBorders/LeftAndTopLeft/Corner: [Vector2i(-1, -1), [Vector2i(-1, 0), Vector2i(0, -1)]]
+}
+
+
+func update_borders() -> void:
+	for border in square_borders.keys():
+		border.visible = true
+		for offset in square_borders[border]:
+			if offset is Vector2i: 
+				var check_coord: Vector2i = slot_coord + offset
+				if check_coord in parent_grid.slots.keys():
+					border.visible = false
+					break
+			elif offset is Array:
+				var check_coord_1: Vector2i = slot_coord + offset[0]
+				var check_coord_2: Vector2i = slot_coord + offset[1]
+				if (check_coord_1 in parent_grid.slots.keys()) != (check_coord_2 in parent_grid.slots.keys()):
+					border.visible = false
+					break

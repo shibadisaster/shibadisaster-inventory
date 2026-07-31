@@ -1,7 +1,8 @@
 [gd_scene format=3 uid="uid://2ksl00n5nynp"]
 
 [ext_resource type="Script" uid="uid://1bqux34elk3h" path="res://addons/shibadisaster_inventory/inventory_slot/inventory_slot.gd" id="1_e1ec7"]
-[ext_resource type="Texture2D" uid="uid://ccieys5w2cqh1" path="res://addons/shibadisaster_inventory/sample_ninepatchrect.png" id="2_o7w2a"]
+[ext_resource type="Texture2D" uid="uid://b8q1yhycd3bp5" path="res://addons/shibadisaster_inventory/sample_border.png" id="2_o5yaj"]
+[ext_resource type="Texture2D" uid="uid://bt48grt5lrkit" path="res://addons/shibadisaster_inventory/sample_corner.png" id="3_o5yaj"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m3p1u"]
 bg_color = Color(1, 1, 1, 0.24705882)
@@ -25,16 +26,6 @@ script = ExtResource("1_e1ec7")
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_m3p1u")
 
-[node name="NinePatchRect" type="NinePatchRect" parent="." unique_id=887934297]
-visible = false
-layout_mode = 2
-texture = ExtResource("2_o7w2a")
-region_rect = Rect2(0, 0, 64, 64)
-patch_margin_left = 12
-patch_margin_top = 12
-patch_margin_right = 12
-patch_margin_bottom = 12
-
 [node name="CenterContainer" type="CenterContainer" parent="." unique_id=1712844574]
 z_index = 1
 layout_mode = 2
@@ -57,6 +48,93 @@ layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 8
 text = "1"
+
+[node name="SquareBorders" type="MarginContainer" parent="." unique_id=21692347]
+z_index = 50
+layout_mode = 2
+mouse_filter = 2
+
+[node name="TopAndTopRight" type="VBoxContainer" parent="SquareBorders" unique_id=2092801770]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Edge" type="TextureRect" parent="SquareBorders/TopAndTopRight" unique_id=1414373759]
+layout_mode = 2
+offset_transform_enabled = true
+texture = ExtResource("2_o5yaj")
+expand_mode = 1
+stretch_mode = 3
+
+[node name="Corner" type="TextureRect" parent="SquareBorders/TopAndTopRight" unique_id=11828907]
+z_index = 1
+layout_mode = 2
+size_flags_horizontal = 8
+texture = ExtResource("3_o5yaj")
+expand_mode = 1
+stretch_mode = 3
+
+[node name="RightAndBottomRight" type="VBoxContainer" parent="SquareBorders" unique_id=2075503536]
+layout_mode = 2
+offset_transform_enabled = true
+offset_transform_rotation = 1.5707964
+theme_override_constants/separation = 0
+
+[node name="Edge" type="TextureRect" parent="SquareBorders/RightAndBottomRight" unique_id=1446247025]
+layout_mode = 2
+offset_transform_enabled = true
+texture = ExtResource("2_o5yaj")
+expand_mode = 1
+stretch_mode = 3
+
+[node name="Corner" type="TextureRect" parent="SquareBorders/RightAndBottomRight" unique_id=437946237]
+z_index = 1
+layout_mode = 2
+size_flags_horizontal = 8
+texture = ExtResource("3_o5yaj")
+expand_mode = 1
+stretch_mode = 3
+
+[node name="BottomAndBottomLeft" type="VBoxContainer" parent="SquareBorders" unique_id=910994339]
+layout_mode = 2
+offset_transform_enabled = true
+offset_transform_rotation = 3.1415927
+theme_override_constants/separation = 0
+
+[node name="Edge" type="TextureRect" parent="SquareBorders/BottomAndBottomLeft" unique_id=354627923]
+layout_mode = 2
+offset_transform_enabled = true
+texture = ExtResource("2_o5yaj")
+expand_mode = 1
+stretch_mode = 3
+
+[node name="Corner" type="TextureRect" parent="SquareBorders/BottomAndBottomLeft" unique_id=1926846781]
+z_index = 1
+layout_mode = 2
+size_flags_horizontal = 8
+texture = ExtResource("3_o5yaj")
+expand_mode = 1
+stretch_mode = 3
+
+[node name="LeftAndTopLeft" type="VBoxContainer" parent="SquareBorders" unique_id=1181993470]
+layout_mode = 2
+offset_transform_enabled = true
+offset_transform_rotation = 4.712389
+theme_override_constants/separation = 0
+
+[node name="Edge" type="TextureRect" parent="SquareBorders/LeftAndTopLeft" unique_id=1475330956]
+layout_mode = 2
+offset_transform_enabled = true
+texture = ExtResource("2_o5yaj")
+expand_mode = 1
+stretch_mode = 3
+
+[node name="Corner" type="TextureRect" parent="SquareBorders/LeftAndTopLeft" unique_id=1262791423]
+z_index = 1
+layout_mode = 2
+size_flags_horizontal = 8
+texture = ExtResource("3_o5yaj")
+expand_mode = 1
+stretch_mode = 3
 
 [connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]
