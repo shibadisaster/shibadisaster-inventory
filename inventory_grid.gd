@@ -8,6 +8,14 @@ class_name InventoryGrid
 var InventorySlot = preload("./inventory_slot/inventory_slot.tscn")
 
 
+const SQUARE_ADJACENTS: Array[Vector2i] = [
+	Vector2i(1, 0),
+	Vector2i(0, 1),
+	Vector2i(-1, 0),
+	Vector2i(0, -1)
+]
+
+
 @export var inventory_grid_id: String = str(randi())
 
 ## Initial shape of the InventoryGrid's slots. Can be expanded later if supported.
@@ -271,3 +279,13 @@ func item_is_placeable_by_tags(item: Resource) -> bool:
 		
 	if any_tag_in_whitelist: return true
 	else: return false
+
+
+func get_adjacent_coords() -> Array[Vector2i]:
+	var adjacents: Array[Vector2i] = []
+	for slot_coord in slots.keys():
+		for adjacent_offset in SQUARE_ADJACENTS:
+			var adjacent_coord: Vector2i = slot_coord + adjacent_offset
+			if adjacent_coord not in slots.keys() and adjacent_coord not in adjacents:
+				adjacents.append(adjacent_coord)
+	return adjacents
