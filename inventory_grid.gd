@@ -21,6 +21,12 @@ var InventorySlot = preload("./inventory_slot/inventory_slot.tscn")
 
 @export var stacking_allowed: bool = true
 
+## Whitelist is lower priority, allowing items with ANY of the whitelisted tags to be placed. If no whitelist, anything is let through.
+@export var whitelisted_tags: Array[String] = []
+
+## Blacklist is higher priority, blocking items with ANY of the blacklisted tags from being placed.
+@export var blacklisted_tags: Array[String] = []
+
 ### Style box override for generated InventorySlots
 #@export var stylebox: StyleBox = null
 
@@ -157,6 +163,7 @@ func get_sorted_slot_coords() -> Array[Vector2i]:
 ## Attempts to add an item to the specified slot_coord, returning an inventory_stack_size == 0 item Resource if all in the item's stack were able to be added, null, an inventory_stack_size == (n - x) item Resource if it was able to stack some (x) but not all (n), and null if it couldn't fit anywhere.
 func add_item(slot_coord: Vector2i, item: Resource, max_stack_amount: int = -1) -> Resource:
 	if slot_coord not in slots.keys(): return null
+	if !item_is_placeable_by_tags(item): return null
 	
 	# If stacking is allowed, attempt to increment first...
 	if stacking_allowed:
@@ -251,3 +258,16 @@ func remove_item(slot_coord: Vector2i, max_stack_amount: int = -1, get_half: boo
 	
 	item.inventory_stack_size = amount_to_be_removed
 	return item
+
+
+func item_is_placeable_by_tags(item: Resource) -> bool:
+	var any_tag_in_whitelist: bool = false
+	
+	if whitelisted_tags == []: any_tag_in_whitelist = true
+	
+	for tag in item.inventory_tags:
+		if tag in blacklisted_tags: return false
+		if tag in whitelisted_tags: any_tag_in_whitelist = true
+		
+	if any_tag_in_whitelist: return true
+	else: return false
