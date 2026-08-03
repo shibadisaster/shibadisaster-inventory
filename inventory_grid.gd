@@ -15,8 +15,14 @@ const SQUARE_ADJACENTS: Array[Vector2i] = [
 	Vector2i(0, -1)
 ]
 
+enum GridType {
+	SQUARE,
+	HEXAGON_FLAT_TOP,
+	HEXAGON_POINTY_TOP
+}
 
 @export var inventory_grid_id: String = str(randi())
+@export var grid_type: GridType
 
 ## Initial shape of the InventoryGrid's slots. Can be expanded later if supported.
 @export var initial_shape: Array[Vector2i] = [Vector2i.ZERO]
@@ -71,7 +77,9 @@ func generate_slot(slot_coord: Vector2i) -> void:
 	var slot: InventorySlot = InventorySlot.instantiate()
 	slot.custom_minimum_size = Vector2(inventory_slot_size, inventory_slot_size)
 	slot.custom_maximum_size = Vector2(inventory_slot_size, inventory_slot_size)
+	
 	slot.position = (slot_coord * inventory_slot_size) - (Vector2(inventory_slot_size, inventory_slot_size) / 2.0)
+	
 	slot.slot_coord = slot_coord
 	slot.parent_grid = self
 	self.add_child(slot)
@@ -289,3 +297,14 @@ func get_adjacent_coords() -> Array[Vector2i]:
 			if adjacent_coord not in slots.keys() and adjacent_coord not in adjacents:
 				adjacents.append(adjacent_coord)
 	return adjacents
+	
+	
+func get_all_items() -> Dictionary[Vector2i, Resource]:
+	var items: Dictionary[Vector2i, Resource] = {}
+	
+	for slot_coord in slots.keys():
+		var slot: InventorySlot = slots[slot_coord]
+		if slot.stored_item:
+			items[slot_coord] = slot.stored_item
+			
+	return items
