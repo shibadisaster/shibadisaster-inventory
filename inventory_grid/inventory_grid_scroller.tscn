@@ -14,21 +14,25 @@ script = ExtResource("1_4rbhi")
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 size_flags_horizontal = 0
+mouse_filter = 1
 
 [node name="RightScroller" type="PanelContainer" parent="." unique_id=55602170]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 size_flags_horizontal = 8
+mouse_filter = 1
 
 [node name="UpScroller" type="PanelContainer" parent="." unique_id=886444190]
 custom_minimum_size = Vector2(0, 80)
 layout_mode = 2
 size_flags_vertical = 0
+mouse_filter = 1
 
 [node name="DownScroller" type="PanelContainer" parent="." unique_id=38983927]
 custom_minimum_size = Vector2(0, 80)
 layout_mode = 2
 size_flags_vertical = 8
+mouse_filter = 1
 
 [connection signal="mouse_entered" from="LeftScroller" to="." method="_on_left_scroller_mouse_entered"]
 [connection signal="mouse_exited" from="LeftScroller" to="." method="_on_left_scroller_mouse_exited"]

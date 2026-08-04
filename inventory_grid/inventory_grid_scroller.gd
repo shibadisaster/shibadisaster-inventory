@@ -2,8 +2,8 @@ extends MarginContainer
 
 
 @export var inventory_grid: InventoryGrid
-@export var scroll_time: float = 0.15
-@export var scroll_speed: float = 200.0
+@export var scroll_time: float = 0.10
+@export var scroll_speed: float = 400.0
 
 
 @onready var left: Control = $LeftScroller
@@ -21,6 +21,11 @@ var right_scroll_timer: float = 0.0
 var up_scroll_timer: float = 0.0
 var down_scroll_timer: float = 0.0
 
+var left_scroll_current_speed: Vector2 = Vector2(0.0, 0.0)
+var right_scroll_current_speed: Vector2 = Vector2(0.0, 0.0)
+var up_scroll_current_speed: Vector2 = Vector2(0.0, 0.0)
+var down_scroll_current_speed: Vector2 = Vector2(0.0, 0.0)
+
 
 func _process(delta: float) -> void:
 	if left_hovered: left_scroll_timer = move_toward(left_scroll_timer, scroll_time, delta)
@@ -35,10 +40,26 @@ func _process(delta: float) -> void:
 	if down_hovered: down_scroll_timer = move_toward(down_scroll_timer, scroll_time, delta)
 	else: down_scroll_timer = 0.0
 	
-	if left_scroll_timer == scroll_time: inventory_grid.move_offset(Vector2(-1.0, 0.0) * delta * scroll_speed)
-	if right_scroll_timer == scroll_time: inventory_grid.move_offset(Vector2(1.0, 0.0) * delta * scroll_speed)
-	if up_scroll_timer == scroll_time: inventory_grid.move_offset(Vector2(0.0, -1.0) * delta * scroll_speed)
-	if down_scroll_timer == scroll_time: inventory_grid.move_offset(Vector2(0.0, 1.0) * delta * scroll_speed)
+	if left_scroll_timer == scroll_time: 
+		left_scroll_current_speed = lerp(left_scroll_current_speed, Vector2(-1.0, 0.0) * scroll_speed, 10.0 * delta)
+	else: left_scroll_current_speed = lerp(left_scroll_current_speed, Vector2(0.0, 0.0) * scroll_speed, 20.0 * delta)
+		
+	if right_scroll_timer == scroll_time: 
+		right_scroll_current_speed = lerp(right_scroll_current_speed, Vector2(1.0, 0.0) * scroll_speed, 10.0 * delta)
+	else: right_scroll_current_speed = lerp(right_scroll_current_speed, Vector2(0.0, 0.0) * scroll_speed, 20.0 * delta)
+	
+	if up_scroll_timer == scroll_time: 
+		up_scroll_current_speed = lerp(up_scroll_current_speed, Vector2(0.0, -1.0) * scroll_speed, 10.0 * delta)
+	else: up_scroll_current_speed = lerp(up_scroll_current_speed, Vector2(0.0, 0.0) * scroll_speed, 20.0 * delta)
+	
+	if down_scroll_timer == scroll_time: 
+		down_scroll_current_speed = lerp(down_scroll_current_speed, Vector2(0.0, 1.0) * scroll_speed, 10.0 * delta)
+	else: down_scroll_current_speed = lerp(down_scroll_current_speed, Vector2(0.0, 0.0) * scroll_speed, 20.0 * delta)
+	
+	inventory_grid.move_offset(left_scroll_current_speed * delta)
+	inventory_grid.move_offset(right_scroll_current_speed * delta)
+	inventory_grid.move_offset(up_scroll_current_speed * delta)
+	inventory_grid.move_offset(down_scroll_current_speed * delta)
 
 
 func _on_left_scroller_mouse_entered() -> void: left_hovered = true
