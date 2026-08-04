@@ -5,6 +5,9 @@ extends MarginContainer
 @export var scroll_time: float = 0.10
 @export var scroll_speed: float = 400.0
 
+const HOVERED_COLOR: Color = Color.WHITE
+const UNHOVERED_COLOR: Color = Color(1.0, 1.0, 1.0, 0.0)
+
 
 @onready var left: Control = $LeftScroller
 @onready var right: Control = $RightScroller
@@ -60,6 +63,18 @@ func _process(delta: float) -> void:
 	inventory_grid.move_offset(right_scroll_current_speed * delta)
 	inventory_grid.move_offset(up_scroll_current_speed * delta)
 	inventory_grid.move_offset(down_scroll_current_speed * delta)
+	
+	if left_hovered: left.self_modulate = lerp(left.self_modulate, HOVERED_COLOR, 10.0 * delta)
+	else: left.self_modulate = lerp(left.self_modulate, UNHOVERED_COLOR, 10.0 * delta)
+	
+	if right_hovered: right.self_modulate = lerp(right.self_modulate, HOVERED_COLOR, 10.0 * delta)
+	else: right.self_modulate = lerp(right.self_modulate, UNHOVERED_COLOR, 10.0 * delta)
+	
+	if up_hovered: up.self_modulate = lerp(up.self_modulate, HOVERED_COLOR, 10.0 * delta)
+	else: up.self_modulate = lerp(up.self_modulate, UNHOVERED_COLOR, 10.0 * delta)
+	
+	if down_hovered: down.self_modulate = lerp(down.self_modulate, HOVERED_COLOR, 10.0 * delta)
+	else: down.self_modulate = lerp(down.self_modulate, UNHOVERED_COLOR, 10.0 * delta)
 
 
 func _on_left_scroller_mouse_entered() -> void: left_hovered = true

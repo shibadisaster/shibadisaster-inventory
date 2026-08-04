@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://d3bgpcqeqden6"]
 
 [ext_resource type="Script" uid="uid://dwejph4bgr2re" path="res://addons/shibadisaster_inventory/inventory_grid/inventory_grid_scroller.gd" id="1_4rbhi"]
+[ext_resource type="Texture2D" uid="uid://biep73udml0c2" path="res://addons/shibadisaster_inventory/placeholder_arrow.png" id="2_1frui"]
 
 [node name="InventoryGridScroller" type="MarginContainer" unique_id=914816307]
 mouse_filter = 2
@@ -11,28 +12,63 @@ theme_override_constants/margin_bottom = 0
 script = ExtResource("1_4rbhi")
 
 [node name="LeftScroller" type="PanelContainer" parent="." unique_id=1023753459]
+self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 size_flags_horizontal = 0
 mouse_filter = 1
 
+[node name="TextureRect" type="TextureRect" parent="LeftScroller" unique_id=715012121]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+offset_transform_enabled = true
+texture = ExtResource("2_1frui")
+
 [node name="RightScroller" type="PanelContainer" parent="." unique_id=55602170]
+self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 size_flags_horizontal = 8
 mouse_filter = 1
 
+[node name="TextureRect" type="TextureRect" parent="RightScroller" unique_id=1653072995]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+offset_transform_enabled = true
+offset_transform_rotation = 3.1415927
+texture = ExtResource("2_1frui")
+
 [node name="UpScroller" type="PanelContainer" parent="." unique_id=886444190]
+self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(0, 80)
 layout_mode = 2
 size_flags_vertical = 0
 mouse_filter = 1
 
+[node name="TextureRect" type="TextureRect" parent="UpScroller" unique_id=149121684]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+offset_transform_enabled = true
+offset_transform_rotation = 1.5707964
+texture = ExtResource("2_1frui")
+
 [node name="DownScroller" type="PanelContainer" parent="." unique_id=38983927]
+self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(0, 80)
 layout_mode = 2
 size_flags_vertical = 8
 mouse_filter = 1
+
+[node name="TextureRect" type="TextureRect" parent="DownScroller" unique_id=540973547]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+offset_transform_enabled = true
+offset_transform_rotation = -1.5707964
+texture = ExtResource("2_1frui")
 
 [connection signal="mouse_entered" from="LeftScroller" to="." method="_on_left_scroller_mouse_entered"]
 [connection signal="mouse_exited" from="LeftScroller" to="." method="_on_left_scroller_mouse_exited"]
