@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://d3bgpcqeqden6"]
+
+[ext_resource type="Script" uid="uid://dwejph4bgr2re" path="res://addons/shibadisaster_inventory/inventory_grid/inventory_grid_scroller.gd" id="1_4rbhi"]
+
+[node name="InventoryGridScroller" type="MarginContainer" unique_id=914816307]
+mouse_filter = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+script = ExtResource("1_4rbhi")
+
+[node name="LeftScroller" type="PanelContainer" parent="." unique_id=1023753459]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="RightScroller" type="PanelContainer" parent="." unique_id=55602170]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+size_flags_horizontal = 8
+
+[node name="UpScroller" type="PanelContainer" parent="." unique_id=886444190]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="DownScroller" type="PanelContainer" parent="." unique_id=38983927]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+size_flags_vertical = 8
+
+[connection signal="mouse_entered" from="LeftScroller" to="." method="_on_left_scroller_mouse_entered"]
+[connection signal="mouse_exited" from="LeftScroller" to="." method="_on_left_scroller_mouse_exited"]
+[connection signal="mouse_entered" from="RightScroller" to="." method="_on_right_scroller_mouse_entered"]
+[connection signal="mouse_exited" from="RightScroller" to="." method="_on_right_scroller_mouse_exited"]
+[connection signal="mouse_entered" from="UpScroller" to="." method="_on_up_scroller_mouse_entered"]
+[connection signal="mouse_exited" from="UpScroller" to="." method="_on_up_scroller_mouse_exited"]
+[connection signal="mouse_entered" from="DownScroller" to="." method="_on_down_scroller_mouse_entered"]
+[connection signal="mouse_exited" from="DownScroller" to="." method="_on_down_scroller_mouse_exited"]
