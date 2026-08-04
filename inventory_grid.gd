@@ -21,6 +21,7 @@ enum GridType {
 	HEXAGON_POINTY_TOP
 }
 
+
 @export var inventory_grid_id: String = str(randi())
 @export var grid_type: GridType
 
@@ -49,15 +50,16 @@ var slots: Dictionary[Vector2i, InventorySlot] = {}
 
 func _enter_tree() -> void:
 	_set_default_properties()
-	generate_inventory_slots()
+	generate_inventory_slots_from_initial_shape()
 	
 
 func _ready() -> void:
-	generate_inventory_slots()
+	generate_inventory_slots_from_initial_shape()
 
 
 func _process(delta: float) -> void:
 	update_all_stored_item_parents()
+	#self.move_offset(Vector2(delta * 10.0, delta * 10.0))
 
 
 func _set_default_properties() -> void:
@@ -65,7 +67,7 @@ func _set_default_properties() -> void:
 	self.offset_transform_visual_only = false
 	
 
-func generate_inventory_slots() -> void:
+func generate_inventory_slots_from_initial_shape() -> void:
 	for slot_coord in initial_shape:
 		if slot_coord not in slots.keys():
 			generate_slot(slot_coord)
@@ -308,3 +310,7 @@ func get_all_items() -> Dictionary[Vector2i, Resource]:
 			items[slot_coord] = slot.stored_item
 			
 	return items
+
+
+func move_offset(offset: Vector2) -> void:
+	self.offset_transform_position += offset
