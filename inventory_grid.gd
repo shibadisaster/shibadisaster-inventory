@@ -329,3 +329,22 @@ func get_all_items() -> Dictionary[Vector2i, Resource]:
 
 func move_offset(offset: Vector2) -> void:
 	self.offset_transform_position += offset
+	
+	
+	
+	
+	
+##### SAVING / LOADING
+func save() -> InventoryGridSaveData:
+	var inventory_grid_save_data: InventoryGridSaveData = InventoryGridSaveData.new()
+	inventory_grid_save_data.save(self)
+	return inventory_grid_save_data
+	
+	
+func load_from_save(save_data: InventoryGridSaveData) -> void:
+	clear_all_slots()
+	for slot_coord in save_data.slot_coords:
+		generate_slot_at(slot_coord)
+	for slot_coord in save_data.items.keys():
+		var item: Resource = save_data.items[slot_coord]
+		slots[slot_coord].stored_item = item
