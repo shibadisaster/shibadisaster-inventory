@@ -66,16 +66,31 @@ func _set_default_properties() -> void:
 	self.offset_transform_enabled = true
 	self.offset_transform_visual_only = false
 	
+	
+func clear_all_slots() -> void:
+	for slot_coord in slots.keys():
+		clear_slot_at(slot_coord)
+		
+	
+func clear_slot_at(slot_coord: Vector2i) -> bool:
+	var slot: InventorySlot = slots[slot_coord]
+	slot.stored_item_parent = null
+	slot.stored_item = null
+	slot.queue_free()
+	
+	slots.erase(slot_coord)
+	return true
+	
 
 func generate_inventory_slots_from_initial_shape() -> void:
 	for slot_coord in initial_shape:
 		if slot_coord not in slots.keys():
-			generate_slot(slot_coord)
+			generate_slot_at(slot_coord)
 			
 	update_all_slot_borders()
 			
 
-func generate_slot(slot_coord: Vector2i) -> void:
+func generate_slot_at(slot_coord: Vector2i) -> void:
 	var slot: InventorySlot = InventorySlot.instantiate()
 	slot.custom_minimum_size = Vector2(inventory_slot_size, inventory_slot_size)
 	slot.custom_maximum_size = Vector2(inventory_slot_size, inventory_slot_size)

@@ -44,19 +44,19 @@ func _process(delta: float) -> void:
 	else: down_scroll_timer = 0.0
 	
 	if left_scroll_timer == scroll_time: 
-		left_scroll_current_speed = lerp(left_scroll_current_speed, Vector2(-1.0, 0.0) * scroll_speed, 10.0 * delta)
+		left_scroll_current_speed = lerp(left_scroll_current_speed, Vector2(1.0, 0.0) * scroll_speed, 10.0 * delta)
 	else: left_scroll_current_speed = lerp(left_scroll_current_speed, Vector2(0.0, 0.0) * scroll_speed, 20.0 * delta)
 		
 	if right_scroll_timer == scroll_time: 
-		right_scroll_current_speed = lerp(right_scroll_current_speed, Vector2(1.0, 0.0) * scroll_speed, 10.0 * delta)
+		right_scroll_current_speed = lerp(right_scroll_current_speed, Vector2(-1.0, 0.0) * scroll_speed, 10.0 * delta)
 	else: right_scroll_current_speed = lerp(right_scroll_current_speed, Vector2(0.0, 0.0) * scroll_speed, 20.0 * delta)
 	
 	if up_scroll_timer == scroll_time: 
-		up_scroll_current_speed = lerp(up_scroll_current_speed, Vector2(0.0, -1.0) * scroll_speed, 10.0 * delta)
+		up_scroll_current_speed = lerp(up_scroll_current_speed, Vector2(0.0, 1.0) * scroll_speed, 10.0 * delta)
 	else: up_scroll_current_speed = lerp(up_scroll_current_speed, Vector2(0.0, 0.0) * scroll_speed, 20.0 * delta)
 	
 	if down_scroll_timer == scroll_time: 
-		down_scroll_current_speed = lerp(down_scroll_current_speed, Vector2(0.0, 1.0) * scroll_speed, 10.0 * delta)
+		down_scroll_current_speed = lerp(down_scroll_current_speed, Vector2(0.0, -1.0) * scroll_speed, 10.0 * delta)
 	else: down_scroll_current_speed = lerp(down_scroll_current_speed, Vector2(0.0, 0.0) * scroll_speed, 20.0 * delta)
 	
 	inventory_grid.move_offset(left_scroll_current_speed * delta)
