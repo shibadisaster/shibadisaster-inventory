@@ -25,6 +25,9 @@ var currently_hovered_slots: Array[InventorySlot] = []
 var item_ghost: InventoryItemGhost = null
 var projection_ghost: InventoryProjectionGhost = null
 
+## When loading from a savefile, this must be set manually by the project.
+var inventory_grid_save_data: Dictionary[String, InventoryGridSaveData] = {}
+
 
 func _ready() -> void:
 	pass

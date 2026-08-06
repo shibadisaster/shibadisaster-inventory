@@ -335,10 +335,13 @@ func move_offset(offset: Vector2) -> void:
 	
 	
 ##### SAVING / LOADING
-func save() -> InventoryGridSaveData:
-	var inventory_grid_save_data: InventoryGridSaveData = InventoryGridSaveData.new()
-	inventory_grid_save_data.save(self)
-	return inventory_grid_save_data
+func save(save_to_inventory_manager: bool = true) -> InventoryGridSaveData:
+	var save_data: InventoryGridSaveData = InventoryGridSaveData.new()
+	save_data.save(self)
+	
+	if save_to_inventory_manager: InventoryManager.inventory_grid_save_data[self.inventory_grid_id] = save_data
+		
+	return save_data
 	
 	
 func load_from_save(save_data: InventoryGridSaveData) -> void:
@@ -348,3 +351,9 @@ func load_from_save(save_data: InventoryGridSaveData) -> void:
 	for slot_coord in save_data.items.keys():
 		var item: Resource = save_data.items[slot_coord]
 		slots[slot_coord].stored_item = item
+
+
+func load_from_inventory_manager() -> void:
+	if inventory_grid_id in InventoryManager.inventory_grid_save_data.keys():
+		var inventory_grid_save_data: InventoryGridSaveData = InventoryManager.inventory_grid_save_data[inventory_grid_id]
+		load_from_save(inventory_grid_save_data)
