@@ -15,6 +15,15 @@ const SQUARE_ADJACENTS: Array[Vector2i] = [
 	Vector2i(0, -1)
 ]
 
+const HEXAGON_ADJACENTS: Array[Vector2i] = [
+	Vector2i(0, -1),
+	Vector2i(1, -1),
+	Vector2i(-1, 0),
+	Vector2i(1, 0),
+	Vector2i(-1, 1),
+	Vector2i(0, 1)
+]
+
 enum GridType {
 	SQUARE,
 	HEXAGON_FLAT_TOP,
@@ -325,13 +334,39 @@ func item_is_placeable_by_tags(item: Resource) -> bool:
 	else: return false
 
 
-func get_adjacent_coords() -> Array[Vector2i]:
+func get_possible_adjacent_offsets() -> Array[Vector2i]:
+	var possible_adjacent_offsets: Array[Vector2i] = []
+		
+	if self.grid_type == GridType.SQUARE: possible_adjacent_offsets = SQUARE_ADJACENTS
+	else: possible_adjacent_offsets = HEXAGON_ADJACENTS
+	
+	return possible_adjacent_offsets
+
+
+func get_adjacent_coords_of_grid() -> Array[Vector2i]:
+	var possible_adjacent_offsets: Array[Vector2i] = get_possible_adjacent_offsets()
+	
 	var adjacents: Array[Vector2i] = []
 	for slot_coord in slots.keys():
-		for adjacent_offset in SQUARE_ADJACENTS:
+		for adjacent_offset in possible_adjacent_offsets:
 			var adjacent_coord: Vector2i = slot_coord + adjacent_offset
 			if adjacent_coord not in slots.keys() and adjacent_coord not in adjacents:
 				adjacents.append(adjacent_coord)
+	return adjacents
+	
+
+func get_adjacent_coords_of_slot(slot_coord: Vector2i, include_nonexistent_slots: bool) -> Array[Vector2i]:
+	var possible_adjacent_offsets: Array[Vector2i] = get_possible_adjacent_offsets()
+	
+	var adjacents: Array[Vector2i] = []
+	for adjacent_offset in possible_adjacent_offsets:
+		var adjacent_coord: Vector2i = slot_coord + adjacent_offset
+		if adjacent_coord in slots.keys():
+			adjacents.append(adjacent_coord)
+		else: 
+			if include_nonexistent_slots:
+				adjacents.append(adjacent_coord)
+	
 	return adjacents
 	
 	
