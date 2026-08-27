@@ -95,7 +95,26 @@ func generate_slot_at(slot_coord: Vector2i) -> void:
 	slot.custom_minimum_size = Vector2(inventory_slot_size, inventory_slot_size)
 	slot.custom_maximum_size = Vector2(inventory_slot_size, inventory_slot_size)
 	
-	slot.position = (slot_coord * inventory_slot_size) - (Vector2(inventory_slot_size, inventory_slot_size) / 2.0)
+	var center_offset: Vector2 = (Vector2(inventory_slot_size, inventory_slot_size) / 2.0)
+	var pos: Vector2 = slot_coord
+	
+	if self.grid_type == GridType.SQUARE:
+		pass
+	elif self.grid_type == GridType.HEXAGON_FLAT_TOP:
+		pos = Vector2(
+			3.0 / 2.0 * slot_coord.x,
+			sqrt(3.0) / 2.0 * slot_coord.x + sqrt(3.0) * slot_coord.y
+		)
+	elif self.grid_type == GridType.HEXAGON_POINTY_TOP:
+		pos = Vector2(
+			sqrt(3.0) * slot_coord.x + sqrt(3.0) / 2.0 * slot_coord.y,
+			3.0 / 2.0 * slot_coord.y
+		)
+	else:
+		pass
+	
+	pos *= inventory_slot_size
+	slot.position = pos - center_offset
 	
 	slot.slot_coord = slot_coord
 	slot.parent_grid = self
