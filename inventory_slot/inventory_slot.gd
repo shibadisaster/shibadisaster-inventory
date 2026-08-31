@@ -87,3 +87,8 @@ func update_borders() -> void:
 				if (check_coord_1 in parent_grid.slots.keys()) != (check_coord_2 in parent_grid.slots.keys()):
 					border.visible = false
 					break
+
+
+func set_background(background_tex: Texture2D, background_tex_modulate: Color) -> void:
+	if background_tex: $Background.texture = background_tex
+	if background_tex_modulate: $Background.modulate = background_tex_modulate

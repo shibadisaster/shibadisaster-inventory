@@ -41,7 +41,7 @@ enum GridType {
 @export var inventory_slot_size: float = 64.0
 
 ## A layer refers to a layer of the InventoryGrid that an Item can exist in. Items from different layers can occupy the same space, but Items from the same layer cannot.
-@export var layers: Array[String] = ["Default"]
+#@export var layers: Array[String] = ["Default"]
 
 @export var stacking_allowed: bool = true
 
@@ -51,8 +51,10 @@ enum GridType {
 ## Blacklist is higher priority, blocking items with ANY of the blacklisted tags from being placed.
 @export var blacklisted_tags: Array[String] = []
 
-### Style box override for generated InventorySlots
-#@export var stylebox: StyleBox = null
+@export_group("Inventory Slot Style")
+## Style box override for generated InventorySlots
+@export var background_tex: Texture2D
+@export var background_tex_modulate: Color
 
 var slots: Dictionary[Vector2i, InventorySlot] = {}
 
@@ -107,26 +109,33 @@ func generate_slot_at(slot_coord: Vector2i) -> void:
 	var center_offset: Vector2 = (Vector2(inventory_slot_size, inventory_slot_size) / 2.0)
 	var pos: Vector2 = slot_coord
 	
+	# Position slot
 	if self.grid_type == GridType.SQUARE:
 		pass
+		pos *= inventory_slot_size
 	elif self.grid_type == GridType.HEXAGON_FLAT_TOP:
 		pos = Vector2(
 			3.0 / 2.0 * slot_coord.x,
 			sqrt(3.0) / 2.0 * slot_coord.x + sqrt(3.0) * slot_coord.y
 		)
+		pos *= inventory_slot_size / sqrt(3.0)
 	elif self.grid_type == GridType.HEXAGON_POINTY_TOP:
 		pos = Vector2(
 			sqrt(3.0) * slot_coord.x + sqrt(3.0) / 2.0 * slot_coord.y,
 			3.0 / 2.0 * slot_coord.y
 		)
+		pos *= inventory_slot_size / sqrt(3.0)
 	else:
 		pass
 	
-	pos *= inventory_slot_size
 	slot.position = pos - center_offset
 	
 	slot.slot_coord = slot_coord
 	slot.parent_grid = self
+	
+	# Style slot
+	slot.set_background(self.background_tex, self.background_tex_modulate)
+	
 	self.add_child(slot)
 	
 	slots[slot_coord] = slot
