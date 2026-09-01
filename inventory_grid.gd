@@ -55,6 +55,8 @@ enum GridType {
 ## Style box override for generated InventorySlots
 @export var background_tex: Texture2D
 @export var background_tex_modulate: Color
+@export var hover_tex: Texture2D
+@export var hover_tex_modulate: Color
 
 var slots: Dictionary[Vector2i, InventorySlot] = {}
 
@@ -109,9 +111,8 @@ func generate_slot_at(slot_coord: Vector2i) -> void:
 	var center_offset: Vector2 = (Vector2(inventory_slot_size, inventory_slot_size) / 2.0)
 	var pos: Vector2 = slot_coord
 	
-	# Position slot
+	# Configure slot pos based on grid type
 	if self.grid_type == GridType.SQUARE:
-		pass
 		pos *= inventory_slot_size
 	elif self.grid_type == GridType.HEXAGON_FLAT_TOP:
 		pos = Vector2(
@@ -127,7 +128,6 @@ func generate_slot_at(slot_coord: Vector2i) -> void:
 		pos *= inventory_slot_size / sqrt(3.0)
 	else:
 		pass
-	
 	slot.position = pos - center_offset
 	
 	slot.slot_coord = slot_coord
@@ -135,6 +135,7 @@ func generate_slot_at(slot_coord: Vector2i) -> void:
 	
 	# Style slot
 	slot.set_background(self.background_tex, self.background_tex_modulate)
+	slot.set_hover_appearance(self.hover_tex, self.hover_tex_modulate)
 	
 	self.add_child(slot)
 	
