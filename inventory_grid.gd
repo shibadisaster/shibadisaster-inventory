@@ -57,6 +57,7 @@ enum GridType {
 @export var background_tex_modulate: Color
 @export var hover_tex: Texture2D
 @export var hover_tex_modulate: Color
+@export var hover_material: Material
 
 var slots: Dictionary[Vector2i, InventorySlot] = {}
 
@@ -135,7 +136,7 @@ func generate_slot_at(slot_coord: Vector2i) -> void:
 	
 	# Style slot
 	slot.set_background(self.background_tex, self.background_tex_modulate)
-	slot.set_hover_appearance(self.hover_tex, self.hover_tex_modulate)
+	slot.set_hover_appearance(self.hover_tex, self.hover_tex_modulate, self.hover_material)
 	
 	self.add_child(slot)
 	

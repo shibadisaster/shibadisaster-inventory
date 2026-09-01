@@ -44,14 +44,12 @@ func _on_mouse_entered() -> void:
 
 
 func update_is_hovered(delta: float) -> void:
-	if InventoryManager.hovered_slot == self: 
-		visual_hover_factor = move_toward(visual_hover_factor, 1.0, delta / visual_hover_time)
-		#$HoveredUnderlay.visible = true
-	else:
-		visual_hover_factor = move_toward(visual_hover_factor, 0.0, delta / visual_hover_time)
-		#$HoveredUnderlay.visible = false
+	if InventoryManager.hovered_slot == self: visual_hover_factor = move_toward(visual_hover_factor, 1.0, delta / visual_hover_time)
+	else: visual_hover_factor = move_toward(visual_hover_factor, 0.0, delta / visual_hover_time)
 	
-	if true: $HoverUnderlay.modulate = Color(1.0, 1.0, 1.0, visual_hover_factor)
+	if !$HoverUnderlay.material: $HoverUnderlay.modulate = Color(1.0, 1.0, 1.0, visual_hover_factor)
+	else: 
+		$HoverUnderlay.material.set_shader_parameter("fading", visual_hover_factor)
 
 
 func _on_mouse_exited() -> void:
@@ -97,6 +95,8 @@ func set_background(background_tex: Texture2D, background_tex_modulate: Color) -
 	if background_tex_modulate: $Background.modulate = background_tex_modulate
 	
 
-func set_hover_appearance(hover_tex: Texture2D, hover_tex_modulate: Color) -> void:
+func set_hover_appearance(hover_tex: Texture2D, hover_tex_modulate: Color, hover_material: Material) -> void:
 	if hover_tex: $HoverUnderlay.texture = hover_tex
 	if hover_tex_modulate: $HoverUnderlay.modulate = hover_tex_modulate
+	if hover_material: $HoverUnderlay.material = hover_material.duplicate()
+	else: $HoverUnderlay.material = null
